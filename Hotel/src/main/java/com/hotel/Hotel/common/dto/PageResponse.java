@@ -1,19 +1,20 @@
-package com.hotel.Hotel.models;
-
+package com.hotel.Hotel.common.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class RoomType {
+public class PageResponse<T> {
 
-    private Integer id;
-    private Integer roomType; //prebaciti u enum
-    private String description;
+    private int total;
+    private List<T> elements;
 
 }
+

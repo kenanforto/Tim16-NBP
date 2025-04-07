@@ -8,21 +8,19 @@ import lombok.NoArgsConstructor;
 import java.sql.Timestamp;
 import java.time.Instant;
 
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Users {
+public class Guest {
 
     private Integer id;
     private String firstName;
     private String lastName;
     private String email;
-    private String password;
-    private String username;
+    private Integer addressId;
     private String phoneNumber;
     private Instant birthDate;
-    private Integer addressId;
-    private Integer roleId;
 
 }

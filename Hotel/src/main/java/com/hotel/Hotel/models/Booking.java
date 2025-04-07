@@ -6,15 +6,19 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.sql.Timestamp;
+import java.time.Instant;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Apps {
+public class Booking {
+
     private Integer id;
-    private String appId;
-    private Integer managerId;
-    private Timestamp expiryDate;
-    private Integer roleId;
+    private Integer guestId;
+    private Integer reservationAgentId;
+    private Instant dateFrom;
+    private Instant dateTo;
+    private Integer bookingStatusId;
+
 }
