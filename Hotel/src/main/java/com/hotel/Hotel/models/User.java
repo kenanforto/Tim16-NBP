@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 
 import java.sql.Timestamp;
 import java.time.Instant;
-import java.util.Date;
+import java.sql.Date;
 
 @Entity
 @Table(name = "NBP.NBP_USER")
@@ -20,7 +20,6 @@ import java.util.Date;
 public class User {
 
     @Id
-    @GeneratedValue
     private Integer id;
     private String firstName;
     private String lastName;
@@ -35,11 +34,15 @@ public class User {
 
 
     public User(String firstName,
-                String lastName, String email,
-                String password, String username,
+                String lastName,
+                String email,
+                String password,
+                String username,
                 String phoneNumber,
                 Date birthDate,
-                Integer addressId, Integer roleId, Timestamp deleted) {
+                Integer addressId,
+                Integer roleId,
+                Timestamp deleted) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;

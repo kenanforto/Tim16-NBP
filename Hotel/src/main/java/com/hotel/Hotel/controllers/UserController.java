@@ -1,15 +1,13 @@
 package com.hotel.Hotel.controllers;
 
+//import com.hotel.Hotel.common.dto.UserVM;
 import com.hotel.Hotel.models.RoomStatus;
 import com.hotel.Hotel.models.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -65,6 +63,40 @@ public class UserController {
             System.out.println(user);
 
             return ResponseEntity.ok(user);
+        } catch (SQLException e) {
+            log.error("Error fetching users", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new User());
+        }
+    }
+
+    @PostMapping()
+    public ResponseEntity<User> saveUser(@RequestBody User user) {
+        try {
+            var saveUser = new User(
+                    user.getFirstName(),
+                    user.getLastName(),
+                    user.getEmail(),
+                    user.getPassword(),
+                    user.getUsername(),
+                    user.getPhoneNumber(),
+                    user.getBirthDate(),
+                    user.getAddressId(),
+                    user.getRoleId(),
+                    user.getDeleted()
+            );
+            System.out.println(saveUser);
+            var prepareStatement = jdbcConnection.prepareStatement("INSERT INTO NBP.NBP_USER (ID, FIRST_NAME, LAST_NAME, EMAIL, PASSWORD, USERNAME, PHONE_NUMBER, BIRTH_DATE, ADDRESS_ID, ROLE_ID, DELETED) VALUES(nbp.nbp_user_id_seq.NEXTVAL, ?, ?, ?, ?, ?, ?, ?, ?, ?, '')");
+            prepareStatement.setString(1,saveUser.getFirstName());
+            prepareStatement.setString(2,saveUser.getLastName());
+            prepareStatement.setString(3,saveUser.getEmail());
+            prepareStatement.setString(4,saveUser.getPassword());
+            prepareStatement.setString(5,saveUser.getUsername());
+            prepareStatement.setString(6,saveUser.getPhoneNumber());
+            prepareStatement.setDate(7,saveUser.getBirthDate());
+            prepareStatement.setInt(8,saveUser.getAddressId());
+            prepareStatement.setInt(9,saveUser.getRoleId());
+            var resultSet=prepareStatement.executeQuery();
+            return ResponseEntity.ok(saveUser);
         } catch (SQLException e) {
             log.error("Error fetching users", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new User());
