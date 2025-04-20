@@ -14,7 +14,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.sql.Timestamp;
 import java.util.Collection;
-import java.util.Date;
+import java.sql.Date;
 import java.util.List;
 
 @Data

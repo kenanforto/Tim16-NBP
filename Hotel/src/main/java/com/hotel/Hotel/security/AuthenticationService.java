@@ -33,7 +33,7 @@ public class AuthenticationService {
                 user.getAddressId(),
                 user.getRoleId(),
         user.getDeleted());
-//        saveUser=userRepository.save(saveUser);
+        saveUser=userRepository.saveUser(saveUser).getBody();
         return new UserVM(saveUser.getFirstName(),saveUser.getLastName(),saveUser.getEmail(),saveUser.getPassword(),
                 saveUser.getUsername(),saveUser.getPhoneNumber(), saveUser.getBirthDate(), saveUser.getAddressId(), saveUser.getRoleId(), saveUser.getDeleted());
     }
