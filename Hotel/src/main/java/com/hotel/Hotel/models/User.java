@@ -23,5 +23,6 @@ public class User {
     private Instant birthDate;
     private Integer addressId;
     private Integer roleId;
+    private Role role;
 
 }
