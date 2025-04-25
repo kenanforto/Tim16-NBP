@@ -1,16 +1,11 @@
 package com.hotel.Hotel.models;
 
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.sql.Timestamp;
-import java.time.Instant;
 import java.sql.Date;
 
 @Entity
@@ -30,7 +25,6 @@ public class User {
     private Date birthDate;
     private Integer addressId;
     private Integer roleId;
-    private Role role;
 
 
     public User(String firstName,

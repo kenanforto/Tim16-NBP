@@ -2,7 +2,6 @@ package com.hotel.Hotel.controllers;
 
 
 import com.hotel.Hotel.models.Role;
-import com.hotel.Hotel.models.RoomStatus;
 import com.hotel.Hotel.models.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,8 +11,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.sql.Statement;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -48,10 +45,9 @@ public class UserController {
                 user.setEmail(resultSet.getString("EMAIL"));
                 user.setUsername(resultSet.getString("USERNAME"));
                 user.setPhoneNumber(resultSet.getString("PHONE_NUMBER"));
-                user.setBirthDate(resultSet.getDate("BIRTH_DATE") != null ? Instant.from(resultSet.getDate("BIRTH_DATE").toLocalDate()) : null);
+                user.setBirthDate(resultSet.getDate("BIRTH_DATE"));
                 user.setAddressId(resultSet.getInt("ADDRESS_ID"));
                 user.setRoleId(resultSet.getInt("ROLE_ID"));
-                user.setRole(roles.stream().filter(role -> role.getId().equals(user.getRoleId())).findFirst().orElseGet(() -> new Role(0, "Unknown")));
                 result.add(user);
             }
             return ResponseEntity.ok(result);
