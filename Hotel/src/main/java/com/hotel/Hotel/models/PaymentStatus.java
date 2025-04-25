@@ -13,6 +13,7 @@ import lombok.NoArgsConstructor;
 public class PaymentStatus {
 
     private Integer id;
-    private Integer paymentType; //prebaciti u enum
+    private String status;
+    private String description;
 
 }

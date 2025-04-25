@@ -30,6 +30,7 @@ public class User {
     private Date birthDate;
     private Integer addressId;
     private Integer roleId;
+    private Role role;
 
 
     public User(String firstName,
