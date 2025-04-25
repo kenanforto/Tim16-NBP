@@ -42,14 +42,14 @@ public class RoomStatusController {
     @PostMapping()
     public ResponseEntity<RoomStatus> createRoomStatus(RoomStatus roomStatus) {
         try {
-            var maxIdStatement = jdbcConnection.prepareStatement("SELECT COALESCE(MAX(ROOM_STATUS_ID), 0) + 1 AS NEXT_ID FROM NBP09.NBP_ROOM_STATUS");
+            var maxIdStatement = jdbcConnection.prepareStatement("SELECT COALESCE(MAX(ID), 0) + 1 AS NEXT_ID FROM NBP09.NBP_ROOM_STATUS");
             var resultSet = maxIdStatement.executeQuery();
             int nextId = 1; // Default to 1 if the table is empty
             if (resultSet.next()) {
                 nextId = resultSet.getInt("NEXT_ID");
             }
 
-            var statement = jdbcConnection.prepareStatement("INSERT INTO NBP09.NBP_ROOM_STATUS (DESCRIPTION, ROOM_STATUS_ID) VALUES (?, ?)", new String[]{"ROOM_STATUS_ID"});
+            var statement = jdbcConnection.prepareStatement("INSERT INTO NBP09.NBP_ROOM_STATUS (DESCRIPTION, ID) VALUES (?, ?)", new String[]{"ID"});
             statement.setString(1, roomStatus.getDescription());
             statement.setInt(2, nextId);
             statement.executeUpdate();
@@ -67,7 +67,7 @@ public class RoomStatusController {
     @PutMapping("/{id}")
     public ResponseEntity<RoomStatus> updateRoomStatus(@PathVariable Integer id, @RequestBody RoomStatus roomStatus) {
         try {
-            var statement = jdbcConnection.prepareStatement("UPDATE NBP09.NBP_ROOM_STATUS SET DESCRIPTION = ? WHERE ROOM_STATUS_ID = ?");
+            var statement = jdbcConnection.prepareStatement("UPDATE NBP09.NBP_ROOM_STATUS SET DESCRIPTION = ? WHERE ID = ?");
             statement.setString(1, roomStatus.getDescription());
             statement.setInt(2, id);
             statement.executeUpdate();
@@ -81,7 +81,7 @@ public class RoomStatusController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteRoomStatus(@PathVariable Integer id) {
         try {
-            var statement = jdbcConnection.prepareStatement("DELETE FROM NBP09.NBP_ROOM_STATUS WHERE ROOM_STATUS_ID = ?");
+            var statement = jdbcConnection.prepareStatement("DELETE FROM NBP09.NBP_ROOM_STATUS WHERE ID = ?");
             statement.setInt(1, id);
             statement.executeUpdate();
             return ResponseEntity.noContent().build();

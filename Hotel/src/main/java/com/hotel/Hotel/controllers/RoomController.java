@@ -48,13 +48,22 @@ public class RoomController {
     @PostMapping()
     public ResponseEntity<Room> createRoom(@RequestBody Room room) {
         try {
-            var statement = jdbcConnection.prepareStatement("INSERT INTO NBP09.NBP_ROOMS (ROOM_TYPE_ID, ROOM_STATUS_ID, FLOOR, PRICE, DESCRIPTION) VALUES (?, ?, ?, ?, ?)", new String[]{"ID"});
+            var maxIdStatement = jdbcConnection.prepareStatement("SELECT COALESCE(MAX(ID), 0) + 1 AS NEXT_ID FROM NBP09.NBP_ROOMS");
+            var resultSet = maxIdStatement.executeQuery();
+            int nextId = 1; // Default to 1 if the table is empty
+            if (resultSet.next()) {
+                nextId = resultSet.getInt("NEXT_ID");
+            }
+
+            var statement = jdbcConnection.prepareStatement("INSERT INTO NBP09.NBP_ROOMS (ROOM_TYPE_ID, ROOM_STATUS_ID, FLOOR, PRICE, DESCRIPTION, ID) VALUES (?, ?, ?, ?, ?, ?)", new String[]{"ID"});
             statement.setInt(1, room.getRoomTypeId());
             statement.setInt(2, room.getRoomStatusId());
             statement.setInt(3, room.getFloor());
             statement.setInt(4, room.getPrice());
             statement.setString(5, room.getDescription());
+            statement.setInt(6, nextId);
             statement.executeUpdate();
+
             var generatedKeys = statement.getGeneratedKeys();
             if (generatedKeys.next()) {
                 room.setId(generatedKeys.getInt(1));
