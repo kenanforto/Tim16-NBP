@@ -71,8 +71,9 @@ public class UserController {
 
     @PostMapping()
     public ResponseEntity<User> saveUser(@RequestBody User user) {
+        User saveUser;
         try {
-            var saveUser = new User(
+            saveUser = new User(
                     user.getFirstName(),
                     user.getLastName(),
                     user.getEmail(),
@@ -81,11 +82,10 @@ public class UserController {
                     user.getPhoneNumber(),
                     user.getBirthDate(),
                     user.getAddressId(),
-                    user.getRoleId(),
-                    user.getDeleted()
+                    user.getRoleId()
             );
             System.out.println(saveUser);
-            var prepareStatement = jdbcConnection.prepareStatement("INSERT INTO NBP.NBP_USER (ID, FIRST_NAME, LAST_NAME, EMAIL, PASSWORD, USERNAME, PHONE_NUMBER, BIRTH_DATE, ADDRESS_ID, ROLE_ID, DELETED) VALUES(nbp.nbp_user_id_seq.NEXTVAL, ?, ?, ?, ?, ?, ?, ?, ?, ?, '')");
+            var prepareStatement = jdbcConnection.prepareStatement("INSERT INTO NBP.NBP_USER (ID, FIRST_NAME, LAST_NAME, EMAIL, PASSWORD, USERNAME, PHONE_NUMBER, BIRTH_DATE, ADDRESS_ID, ROLE_ID) VALUES(nbp.nbp_user_id_seq.NEXTVAL, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
             prepareStatement.setString(1,saveUser.getFirstName());
             prepareStatement.setString(2,saveUser.getLastName());
             prepareStatement.setString(3,saveUser.getEmail());
@@ -96,10 +96,10 @@ public class UserController {
             prepareStatement.setInt(8,saveUser.getAddressId());
             prepareStatement.setInt(9,saveUser.getRoleId());
             var resultSet=prepareStatement.executeQuery();
-            return ResponseEntity.ok(saveUser);
         } catch (SQLException e) {
             log.error("Error fetching users", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new User());
         }
+        return ResponseEntity.ok(saveUser);
     }
 }

@@ -3,7 +3,6 @@ package com.hotel.Hotel.security.config;
 import com.hotel.Hotel.common.dto.UserVM;
 import com.hotel.Hotel.controllers.UserController;
 import com.hotel.Hotel.models.User;
-import com.hotel.Hotel.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -30,7 +29,7 @@ public class ApplicationConfig {
             public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
                 User saveUser= userRepository.getByName(username).getBody();
                return new UserVM(saveUser.getFirstName(),saveUser.getLastName(),saveUser.getEmail(),saveUser.getPassword(),
-                        saveUser.getUsername(),saveUser.getPhoneNumber(), saveUser.getBirthDate(), saveUser.getAddressId(), saveUser.getRoleId(), saveUser.getDeleted());
+                        saveUser.getUsername(),saveUser.getPhoneNumber(), saveUser.getBirthDate(), saveUser.getAddressId(), saveUser.getRoleId());
             }
         };
     }

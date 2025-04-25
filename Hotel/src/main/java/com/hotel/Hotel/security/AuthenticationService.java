@@ -3,7 +3,6 @@ package com.hotel.Hotel.security;
 import com.hotel.Hotel.common.dto.UserVM;
 import com.hotel.Hotel.controllers.UserController;
 import com.hotel.Hotel.models.User;
-import com.hotel.Hotel.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -16,7 +15,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class AuthenticationService {
 
-    private final UserController userRepository;
+    private final UserController userController;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
     private final PasswordEncoder passwordEncoder;
@@ -31,18 +30,19 @@ public class AuthenticationService {
                 user.getPhoneNumber(),
                 user.getBirthDate(),
                 user.getAddressId(),
-                user.getRoleId(),
-        user.getDeleted());
-        saveUser=userRepository.saveUser(saveUser).getBody();
+                user.getRoleId()
+        );
+        saveUser=userController.saveUser(saveUser).getBody();
+
         return new UserVM(saveUser.getFirstName(),saveUser.getLastName(),saveUser.getEmail(),saveUser.getPassword(),
-                saveUser.getUsername(),saveUser.getPhoneNumber(), saveUser.getBirthDate(), saveUser.getAddressId(), saveUser.getRoleId(), saveUser.getDeleted());
+                saveUser.getUsername(),saveUser.getPhoneNumber(), saveUser.getBirthDate(), saveUser.getAddressId(), saveUser.getRoleId());
     }
 
     public String authenticate(AuthenticationRequest authenticationRequest)
     {
         Authentication authentication= authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
-                        authenticationRequest.getEmail(),
+                        authenticationRequest.getUsername(),
                         authenticationRequest.getPassword()
                 )
         );

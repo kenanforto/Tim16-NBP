@@ -30,7 +30,6 @@ public class User {
     private Date birthDate;
     private Integer addressId;
     private Integer roleId;
-    private Timestamp deleted;
 
 
     public User(String firstName,
@@ -41,8 +40,8 @@ public class User {
                 String phoneNumber,
                 Date birthDate,
                 Integer addressId,
-                Integer roleId,
-                Timestamp deleted) {
+                Integer roleId
+    ) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
@@ -52,6 +51,5 @@ public class User {
         this.birthDate = birthDate;
         this.addressId = addressId;
         this.roleId = roleId;
-        this.deleted = deleted;
     }
 }
