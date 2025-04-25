@@ -28,7 +28,7 @@ public class RoomTypeController {
             var result = new ArrayList<RoomType>();
             while (resultSet.next()) {
                 var roomType = new RoomType();
-                roomType.setId(resultSet.getInt("ROOM_TYPE_ID"));
+                roomType.setId(resultSet.getInt("ID"));
                 roomType.setDescription(resultSet.getString("DESCRIPTION"));
                 result.add(roomType);
             }
@@ -42,8 +42,16 @@ public class RoomTypeController {
     @PostMapping()
     public ResponseEntity<RoomType> createRoomType(RoomType roomType) {
         try {
-            var statement = jdbcConnection.prepareStatement("INSERT INTO NBP09.NBP_ROOM_TYPE (DESCRIPTION) VALUES (?)", new String[]{"ROOM_TYPE_ID"});
+            var maxIdStatement = jdbcConnection.prepareStatement("SELECT COALESCE(MAX(ID), 0) + 1 AS NEXT_ID FROM NBP09.NBP_ROOM_TYPE");
+            var resultSet = maxIdStatement.executeQuery();
+            int nextId = 1; // Default to 1 if the table is empty
+            if (resultSet.next()) {
+                nextId = resultSet.getInt("NEXT_ID");
+            }
+
+            var statement = jdbcConnection.prepareStatement("INSERT INTO NBP09.NBP_ROOM_TYPE (DESCRIPTION, ID) VALUES (?, ?)", new String[]{"ID"});
             statement.setString(1, roomType.getDescription());
+            statement.setInt(2, nextId);
             statement.executeUpdate();
             var generatedKeys = statement.getGeneratedKeys();
             if (generatedKeys.next()) {
@@ -59,7 +67,7 @@ public class RoomTypeController {
     @PutMapping("/{id}")
     public ResponseEntity<RoomType> updateRoomType(@PathVariable Integer id, @RequestBody RoomType roomType) {
         try {
-            var statement = jdbcConnection.prepareStatement("UPDATE NBP09.NBP_ROOM_TYPE SET DESCRIPTION = ? WHERE ROOM_TYPE_ID = ?");
+            var statement = jdbcConnection.prepareStatement("UPDATE NBP09.NBP_ROOM_TYPE SET DESCRIPTION = ? WHERE ID = ?");
             statement.setString(1, roomType.getDescription());
             statement.setInt(2, id);
             statement.executeUpdate();
@@ -73,7 +81,7 @@ public class RoomTypeController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteRoomType(@PathVariable Integer id) {
         try {
-            var statement = jdbcConnection.prepareStatement("DELETE FROM NBP09.NBP_ROOM_TYPE WHERE ROOM_TYPE_ID = ?");
+            var statement = jdbcConnection.prepareStatement("DELETE FROM NBP09.NBP_ROOM_TYPE WHERE ID = ?");
             statement.setInt(1, id);
             statement.executeUpdate();
             return ResponseEntity.noContent().build();

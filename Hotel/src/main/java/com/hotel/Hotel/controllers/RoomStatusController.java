@@ -28,7 +28,7 @@ public class RoomStatusController {
             while (resultSet.next()) {
                 log.info("getRoomStatus {}", resultSet.getString("description"));
                 RoomStatus roomStatus = new RoomStatus();
-                roomStatus.setId(resultSet.getInt("ROOM_STATUS_ID"));
+                roomStatus.setId(resultSet.getInt("ID"));
                 roomStatus.setDescription(resultSet.getString("DESCRIPTION"));
                 result.add(roomStatus);
             }
