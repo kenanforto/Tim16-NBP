@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 public class BookingStatus {
 
     private Integer id;
-    private Integer status; //treba prepraviti na enum
+    private String status; //treba prepraviti na enum
     private String description;
     private Integer active; // provjeriti za enum
 
