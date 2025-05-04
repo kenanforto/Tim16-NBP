@@ -72,7 +72,6 @@ public class GuestController {
         }
     }
 
-    // Create a new guest
     @PostMapping("")
     public ResponseEntity<Guest> create(@RequestBody Guest savedGuest) {
         Integer guestId=1;
@@ -110,5 +109,25 @@ public class GuestController {
         }
     }
 
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteGuestById(@PathVariable Integer id) {
+        try {
+            PreparedStatement checkStmt = jdbcConnection.prepareStatement("SELECT * FROM NBP09.NBP_GUESTS WHERE ID = ?");
+            checkStmt.setInt(1, id);
+            ResultSet rs = checkStmt.executeQuery();
+            if (!rs.next()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Guest with ID " + id + " not found.");
+            }
+
+            PreparedStatement deleteStmt = jdbcConnection.prepareStatement("DELETE FROM NBP09.NBP_GUESTS WHERE ID = ?");
+            deleteStmt.setInt(1, id);
+            deleteStmt.executeUpdate();
+
+            return ResponseEntity.ok("Guest with ID " + id + " successfully deleted.");
+        } catch (SQLException e) {
+            log.error("Error deleting guest", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while deleting the guest.");
+        }
+    }
 
 }
