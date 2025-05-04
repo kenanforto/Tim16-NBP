@@ -5,7 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
+import java.sql.Date;
 
 @Data
 @NoArgsConstructor
@@ -19,6 +19,6 @@ public class Guest {
     private String email;
     private Integer addressId;
     private String phoneNumber;
-    private LocalDate birthDate;  // Use LocalDate for date without time
+    private Date birthDate;
 
 }

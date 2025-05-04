@@ -1,6 +1,7 @@
 package com.hotel.Hotel.controllers;
 
 
+import com.hotel.Hotel.models.Guest;
 import com.hotel.Hotel.models.Role;
 import com.hotel.Hotel.models.User;
 import lombok.RequiredArgsConstructor;
@@ -10,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -83,9 +85,21 @@ public class UserController {
 
     @PostMapping()
     public ResponseEntity<User> saveUser(@RequestBody User user) {
-        User saveUser;
+        Integer userId=1;
         try {
-            saveUser = new User(
+            ResultSet resultSet=jdbcConnection.prepareStatement("SELECT MAX(ID) FROM NBP.NBP_USER").executeQuery();
+            if(resultSet.next())
+            {
+                userId=resultSet.getInt(1)+1;
+            }
+            System.out.println("userId "+ userId);
+        }
+        catch (SQLException e) {
+            log.error("Error with creating guest", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new User());
+        }
+        try {
+            User saveUser = new User(
                     user.getFirstName(),
                     user.getLastName(),
                     user.getEmail(),
@@ -97,21 +111,24 @@ public class UserController {
                     user.getRoleId()
             );
             System.out.println(saveUser);
-            var prepareStatement = jdbcConnection.prepareStatement("INSERT INTO NBP.NBP_USER (ID, FIRST_NAME, LAST_NAME, EMAIL, PASSWORD, USERNAME, PHONE_NUMBER, BIRTH_DATE, ADDRESS_ID, ROLE_ID) VALUES(nbp.nbp_user_id_seq.NEXTVAL, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-            prepareStatement.setString(1,saveUser.getFirstName());
-            prepareStatement.setString(2,saveUser.getLastName());
-            prepareStatement.setString(3,saveUser.getEmail());
-            prepareStatement.setString(4,saveUser.getPassword());
-            prepareStatement.setString(5,saveUser.getUsername());
-            prepareStatement.setString(6,saveUser.getPhoneNumber());
-            prepareStatement.setDate(7,saveUser.getBirthDate());
-            prepareStatement.setInt(8,saveUser.getAddressId());
-            prepareStatement.setInt(9,saveUser.getRoleId());
-            var resultSet=prepareStatement.executeQuery();
+            var prepareStatement = jdbcConnection.prepareStatement("INSERT INTO NBP.NBP_USER (ID, FIRST_NAME, LAST_NAME, EMAIL, PASSWORD, USERNAME, PHONE_NUMBER, BIRTH_DATE, ADDRESS_ID, ROLE_ID) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            prepareStatement.setInt(1, userId);
+            prepareStatement.setString(2,saveUser.getFirstName());
+            prepareStatement.setString(3,saveUser.getLastName());
+            prepareStatement.setString(4,saveUser.getEmail());
+            prepareStatement.setString(5,saveUser.getPassword());
+            prepareStatement.setString(6,saveUser.getUsername());
+            prepareStatement.setString(7,saveUser.getPhoneNumber());
+            prepareStatement.setDate(8,saveUser.getBirthDate());
+            prepareStatement.setInt(9,saveUser.getAddressId());
+            prepareStatement.setInt(10,saveUser.getRoleId());
+            prepareStatement.executeQuery();
+            saveUser.setId(userId);
+            return ResponseEntity.status(HttpStatus.CREATED).body(saveUser);
+
         } catch (SQLException e) {
             log.error("Error fetching users", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new User());
         }
-        return ResponseEntity.ok(saveUser);
     }
 }
