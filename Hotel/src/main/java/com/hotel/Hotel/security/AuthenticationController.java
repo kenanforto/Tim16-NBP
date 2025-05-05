@@ -2,6 +2,7 @@ package com.hotel.Hotel.security;
 
 
 import com.hotel.Hotel.common.dto.UserVM;
+import com.hotel.Hotel.common.request.RegistrationRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -25,8 +26,16 @@ public class AuthenticationController {
     }
 
     @PostMapping(path = "/register")
-    public UserVM registerUser(@RequestBody UserVM user)
-    {
+    public UserVM registerUser(@RequestBody RegistrationRequest request) {
+        var user = new UserVM();
+        user.setEmail(request.getEmail());
+        user.setPassword(request.getPassword());
+        user.setFirstName(request.getFirstName());
+        user.setLastName(request.getLastName());
+        user.setPhoneNumber(request.getPhoneNumber());
+        user.setBirthDate(request.getBirthDate());
+        user.setAddressId(request.getAddressId());
+        user.setRoleId(121);
         return authenticationService.register(user);
     }
 

@@ -20,7 +20,6 @@ public class UserVM implements UserDetails {
     private String lastName;
     private String email;
     private String password;
-    private String username;
     private String phoneNumber;
     private Date birthDate;
     private Integer addressId;

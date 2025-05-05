@@ -1,5 +1,6 @@
 package com.hotel.Hotel.controllers;
 
+import com.hotel.Hotel.common.request.RoomTypeRequest;
 import com.hotel.Hotel.models.RoomStatus;
 import com.hotel.Hotel.models.RoomType;
 import lombok.RequiredArgsConstructor;
@@ -40,7 +41,7 @@ public class RoomTypeController {
     }
 
     @PostMapping()
-    public ResponseEntity<RoomType> createRoomType(RoomType roomType) {
+    public ResponseEntity<RoomType> createRoomType(RoomTypeRequest roomTypeRequest) {
         try {
             var maxIdStatement = jdbcConnection.prepareStatement("SELECT COALESCE(MAX(ID), 0) + 1 AS NEXT_ID FROM NBP09.NBP_ROOM_TYPE");
             var resultSet = maxIdStatement.executeQuery();
@@ -50,9 +51,11 @@ public class RoomTypeController {
             }
 
             var statement = jdbcConnection.prepareStatement("INSERT INTO NBP09.NBP_ROOM_TYPE (DESCRIPTION, ID) VALUES (?, ?)", new String[]{"ID"});
-            statement.setString(1, roomType.getDescription());
+            statement.setString(1, roomTypeRequest.getDescription());
             statement.setInt(2, nextId);
             statement.executeUpdate();
+            var roomType = new RoomType();
+            roomType.setDescription(roomTypeRequest.getDescription());
             var generatedKeys = statement.getGeneratedKeys();
             if (generatedKeys.next()) {
                 roomType.setId(generatedKeys.getInt(1));
@@ -65,12 +68,15 @@ public class RoomTypeController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<RoomType> updateRoomType(@PathVariable Integer id, @RequestBody RoomType roomType) {
+    public ResponseEntity<RoomType> updateRoomType(@PathVariable Integer id, @RequestBody RoomTypeRequest roomTypeRequest) {
         try {
             var statement = jdbcConnection.prepareStatement("UPDATE NBP09.NBP_ROOM_TYPE SET DESCRIPTION = ? WHERE ID = ?");
-            statement.setString(1, roomType.getDescription());
+            statement.setString(1, roomTypeRequest.getDescription());
             statement.setInt(2, id);
             statement.executeUpdate();
+            var roomType = new RoomType();
+            roomType.setDescription(roomTypeRequest.getDescription());
+            roomType.setId(id);
             return ResponseEntity.ok(roomType);
         } catch (SQLException e) {
             log.error("Error updating room type", e);

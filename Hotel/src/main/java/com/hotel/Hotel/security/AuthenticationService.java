@@ -35,7 +35,7 @@ public class AuthenticationService {
         saveUser=userController.saveUser(saveUser).getBody();
 
         return new UserVM(saveUser.getFirstName(),saveUser.getLastName(),saveUser.getEmail(),saveUser.getPassword(),
-                saveUser.getUsername(),saveUser.getPhoneNumber(), saveUser.getBirthDate(), saveUser.getAddressId(), saveUser.getRoleId());
+                saveUser.getPhoneNumber(), saveUser.getBirthDate(), saveUser.getAddressId(), saveUser.getRoleId());
     }
 
     public String authenticate(AuthenticationRequest authenticationRequest)

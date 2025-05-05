@@ -29,7 +29,7 @@ public class ApplicationConfig {
             public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
                 User saveUser= userRepository.getByName(username).getBody();
                return new UserVM(saveUser.getFirstName(),saveUser.getLastName(),saveUser.getEmail(),saveUser.getPassword(),
-                        saveUser.getUsername(),saveUser.getPhoneNumber(), saveUser.getBirthDate(), saveUser.getAddressId(), saveUser.getRoleId());
+                        saveUser.getPhoneNumber(), saveUser.getBirthDate(), saveUser.getAddressId(), saveUser.getRoleId());
             }
         };
     }
