@@ -103,4 +103,72 @@ public class PaymentsController {
         }
     }
 
+    @GetMapping("/filter")
+    public ResponseEntity<List<Payments>> filterPayments(
+            @RequestParam(required = false) Integer bookingId,
+            @RequestParam(required = false) Integer paymentTypeId,
+            @RequestParam(required = false) Integer paymentStatusId,
+            @RequestParam(required = false) Integer paymentMin,
+            @RequestParam(required = false) Integer paymentMax,
+            @RequestParam(required = false) String paymentDateFrom,
+            @RequestParam(required = false) String paymentDateTo
+    ) {
+        try {
+            StringBuilder query = new StringBuilder("SELECT * FROM NBP09.NBP_PAYMENTS WHERE 1=1");
+            List<Object> params = new ArrayList<>();
+
+            if (bookingId != null) {
+                query.append(" AND BOOKING_ID = ?");
+                params.add(bookingId);
+            }
+            if (paymentTypeId != null) {
+                query.append(" AND PAYMENT_TYPE_ID = ?");
+                params.add(paymentTypeId);
+            }
+            if (paymentStatusId != null) {
+                query.append(" AND PAYMENT_STATUS_ID = ?");
+                params.add(paymentStatusId);
+            }
+            if (paymentMin != null) {
+                query.append(" AND PAYMENT >= ?");
+                params.add(paymentMin);
+            }
+            if (paymentMax != null) {
+                query.append(" AND PAYMENT <= ?");
+                params.add(paymentMax);
+            }
+            if (paymentDateFrom != null) {
+                query.append(" AND PAYMENT_DATE >= TO_TIMESTAMP(?, 'YYYY-MM-DD')");
+                params.add(paymentDateFrom);
+            }
+            if (paymentDateTo != null) {
+                query.append(" AND PAYMENT_DATE <= TO_TIMESTAMP(?, 'YYYY-MM-DD')");
+                params.add(paymentDateTo);
+            }
+
+            var statement = jdbcConnection.prepareStatement(query.toString());
+            for (int i = 0; i < params.size(); i++) {
+                statement.setObject(i + 1, params.get(i));
+            }
+
+            var resultSet = statement.executeQuery();
+            var result = new ArrayList<Payments>();
+            while (resultSet.next()) {
+                Payments payment = new Payments();
+                payment.setId(resultSet.getInt("ID"));
+                payment.setBookingId(resultSet.getInt("BOOKING_ID"));
+                payment.setDate(resultSet.getTimestamp("PAYMENT_DATE").toInstant());
+                payment.setPayment(resultSet.getInt("PAYMENT"));
+                payment.setPaymentTypeId(resultSet.getInt("PAYMENT_TYPE_ID"));
+                payment.setPaymentStatusId(resultSet.getInt("PAYMENT_STATUS_ID"));
+                result.add(payment);
+            }
+            return ResponseEntity.ok(result);
+        } catch (SQLException e) {
+            log.error("Error filtering payments", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(List.of());
+        }
+    }
+
+
 }

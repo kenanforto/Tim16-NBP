@@ -101,4 +101,63 @@ public class BookingController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+
+    @GetMapping("/filter")
+    public ResponseEntity<List<Booking>> filterBookings(
+            @RequestParam(required = false) Integer guestId,
+            @RequestParam(required = false) Integer reservationAgentId,
+            @RequestParam(required = false) Integer bookingStatusId,
+            @RequestParam(required = false) String dateFrom,
+            @RequestParam(required = false) String dateTo
+    ) {
+        try {
+            StringBuilder query = new StringBuilder("SELECT * FROM NBP09.NBP_BOOKINGS WHERE 1=1");
+            List<Object> params = new ArrayList<>();
+
+            if (guestId != null) {
+                query.append(" AND GUEST_ID = ?");
+                params.add(guestId);
+            }
+            if (reservationAgentId != null) {
+                query.append(" AND RESERVATION_AGENT_ID = ?");
+                params.add(reservationAgentId);
+            }
+            if (bookingStatusId != null) {
+                query.append(" AND BOOKING_STATUS_ID = ?");
+                params.add(bookingStatusId);
+            }
+            if (dateFrom != null) {
+                query.append(" AND DATE_FROM >= ?");
+                params.add(java.sql.Timestamp.valueOf(dateFrom + " 00:00:00"));
+            }
+            if (dateTo != null) {
+                query.append(" AND DATE_TO <= ?");
+                params.add(java.sql.Timestamp.valueOf(dateTo + " 23:59:59"));
+            }
+
+            var statement = jdbcConnection.prepareStatement(query.toString());
+            for (int i = 0; i < params.size(); i++) {
+                statement.setObject(i + 1, params.get(i));
+            }
+
+            var resultSet = statement.executeQuery();
+            var bookings = new ArrayList<Booking>();
+            while (resultSet.next()) {
+                Booking booking = new Booking();
+                booking.setId(resultSet.getInt("ID"));
+                booking.setGuestId(resultSet.getInt("GUEST_ID"));
+                booking.setReservationAgentId(resultSet.getInt("RESERVATION_AGENT_ID"));
+                booking.setDateFrom(resultSet.getTimestamp("DATE_FROM").toInstant());
+                booking.setDateTo(resultSet.getTimestamp("DATE_TO").toInstant());
+                booking.setBookingStatusId(resultSet.getInt("BOOKING_STATUS_ID"));
+                bookings.add(booking);
+            }
+
+            return ResponseEntity.ok(bookings);
+        } catch (SQLException e) {
+            log.error("Error filtering bookings", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(List.of());
+        }
+    }
+
 }

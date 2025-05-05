@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.sql.Connection;
 import java.util.ArrayList;
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -131,5 +132,59 @@ public class RoomController {
             return ResponseEntity.status(500).build();
         }
     }
+
+    @GetMapping("/filter")
+    public ResponseEntity<List<Room>> filterRooms(
+            @RequestParam(required = false) Integer floor,
+            @RequestParam(required = false) Integer price,
+            @RequestParam(required = false) Integer roomTypeId,
+            @RequestParam(required = false) Integer roomStatusId
+    ) {
+        try {
+            StringBuilder query = new StringBuilder("SELECT * FROM NBP09.NBP_ROOMS WHERE 1=1");
+            List<Object> parameters = new ArrayList<>();
+
+            if (floor != null) {
+                query.append(" AND FLOOR = ?");
+                parameters.add(floor);
+            }
+            if (price != null) {
+                query.append(" AND PRICE = ?");
+                parameters.add(price);
+            }
+            if (roomTypeId != null) {
+                query.append(" AND ROOM_TYPE_ID = ?");
+                parameters.add(roomTypeId);
+            }
+            if (roomStatusId != null) {
+                query.append(" AND ROOM_STATUS_ID = ?");
+                parameters.add(roomStatusId);
+            }
+
+            var statement = jdbcConnection.prepareStatement(query.toString());
+
+            for (int i = 0; i < parameters.size(); i++) {
+                statement.setObject(i + 1, parameters.get(i));
+            }
+
+            var resultSet = statement.executeQuery();
+            var rooms = new ArrayList<Room>();
+            while (resultSet.next()) {
+                var room = new Room();
+                room.setId(resultSet.getInt("ID"));
+                room.setRoomTypeId(resultSet.getInt("ROOM_TYPE_ID"));
+                room.setRoomStatusId(resultSet.getInt("ROOM_STATUS_ID"));
+                room.setFloor(resultSet.getInt("FLOOR"));
+                room.setPrice(resultSet.getInt("PRICE"));
+                room.setDescription(resultSet.getString("DESCRIPTION"));
+                rooms.add(room);
+            }
+            return ResponseEntity.ok(rooms);
+        } catch (Exception e) {
+            log.error("Error filtering rooms", e);
+            return ResponseEntity.status(500).body(null);
+        }
+    }
+
 
 }
