@@ -1,5 +1,6 @@
 package com.hotel.Hotel.controllers;
 
+import com.hotel.Hotel.common.request.PaymentTypeRequest;
 import com.hotel.Hotel.models.PaymentType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -40,7 +41,7 @@ public class PaymentTypeController {
     }
 
     @PostMapping()
-    public ResponseEntity<PaymentType> createPaymentType(PaymentType paymentType) {
+    public ResponseEntity<PaymentType> createPaymentType(PaymentTypeRequest paymentTypeRequest) {
         try {
             var maxIdStatement = jdbcConnection.prepareStatement("SELECT COALESCE(MAX(ID), 0) + 1 AS NEXT_ID FROM NBP09.NBP_PAYMENT_TYPE");
             var resultSet = maxIdStatement.executeQuery();
@@ -51,8 +52,13 @@ public class PaymentTypeController {
 
             var statement = jdbcConnection.prepareStatement("INSERT INTO NBP09.NBP_PAYMENT_TYPE (ID, PAYMENT_TYPE) VALUES (?, ?)", new String[]{"ID"});
             statement.setInt(1, nextId);
-            statement.setString(2, paymentType.getPaymentType());
+            statement.setString(2, paymentTypeRequest.getPaymentType());
             statement.executeUpdate();
+
+            var paymentType = new PaymentType();
+            paymentType.setId(nextId);
+            paymentType.setPaymentType(paymentTypeRequest.getPaymentType());
+
             var generatedKeys = statement.getGeneratedKeys();
             if (generatedKeys.next()) {
                 paymentType.setId(generatedKeys.getInt(1));
@@ -65,12 +71,17 @@ public class PaymentTypeController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<PaymentType> updatePaymentType(@PathVariable Integer id, @RequestBody PaymentType paymentType) {
+    public ResponseEntity<PaymentType> updatePaymentType(@PathVariable Integer id, @RequestBody PaymentTypeRequest paymentTypeRequest) {
         try {
             var statement = jdbcConnection.prepareStatement("UPDATE NBP09.NBP_PAYMENT_TYPE SET PAYMENT_TYPE = ? WHERE ID = ?");
-            statement.setString(1, paymentType.getPaymentType());
+            statement.setString(1, paymentTypeRequest.getPaymentType());
             statement.setInt(2, id);
             statement.executeUpdate();
+
+            var paymentType = new PaymentType();
+            paymentType.setId(id);
+            paymentType.setPaymentType(paymentTypeRequest.getPaymentType());
+
             return ResponseEntity.ok(paymentType);
         } catch (SQLException e) {
             log.error("Error updating payment type", e);

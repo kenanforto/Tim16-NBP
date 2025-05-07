@@ -1,5 +1,6 @@
 package com.hotel.Hotel.controllers;
 
+import com.hotel.Hotel.common.request.PaymentRequest;
 import com.hotel.Hotel.models.Payments;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -44,7 +45,7 @@ public class PaymentsController {
     }
 
     @PostMapping()
-    public ResponseEntity<Payments> createPayment(Payments payment) {
+    public ResponseEntity<Payments> createPayment(PaymentRequest paymentRequest) {
         try {
             var maxIdStatement = jdbcConnection.prepareStatement("SELECT COALESCE(MAX(ID), 0) + 1 AS NEXT_ID FROM NBP09.NBP_PAYMENTS");
             var resultSet = maxIdStatement.executeQuery();
@@ -55,12 +56,21 @@ public class PaymentsController {
 
             var statement = jdbcConnection.prepareStatement("INSERT INTO NBP09.NBP_PAYMENTS (ID, BOOKING_ID, PAYMENT_DATE, PAYMENT, PAYMENT_TYPE_ID, PAYMENT_STATUS_ID) VALUES (?, ?, ?, ?, ?, ?)", new String[]{"ID"});
             statement.setInt(1, nextId);
-            statement.setInt(2, payment.getBookingId());
-            statement.setObject(3, payment.getDate());
-            statement.setInt(4, payment.getPayment());
-            statement.setInt(5, payment.getPaymentTypeId());
-            statement.setInt(6, payment.getPaymentStatusId());
+            statement.setInt(2, paymentRequest.getBookingId());
+            statement.setObject(3, paymentRequest.getDate());
+            statement.setInt(4, paymentRequest.getPayment());
+            statement.setInt(5, paymentRequest.getPaymentTypeId());
+            statement.setInt(6, paymentRequest.getPaymentStatusId());
             statement.executeUpdate();
+
+            var payment = new Payments();
+            payment.setId(nextId);
+            payment.setBookingId(paymentRequest.getBookingId());
+            payment.setDate(paymentRequest.getDate());
+            payment.setPayment(paymentRequest.getPayment());
+            payment.setPaymentTypeId(paymentRequest.getPaymentTypeId());
+            payment.setPaymentStatusId(paymentRequest.getPaymentStatusId());
+
             var generatedKeys = statement.getGeneratedKeys();
             if (generatedKeys.next()) {
                 payment.setId(generatedKeys.getInt(1));
@@ -73,16 +83,24 @@ public class PaymentsController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Payments> updatePayment(@PathVariable Integer id, @RequestBody Payments payment) {
+    public ResponseEntity<Payments> updatePayment(@PathVariable Integer id, @RequestBody PaymentRequest paymentRequest) {
         try {
             var statement = jdbcConnection.prepareStatement("UPDATE NBP09.NBP_PAYMENTS SET BOOKING_ID = ?, PAYMENT_DATE = ?, PAYMENT = ?, PAYMENT_TYPE_ID = ?, PAYMENT_STATUS_ID = ? WHERE ID = ?");
-            statement.setInt(1, payment.getBookingId());
-            statement.setObject(2, payment.getDate());
-            statement.setInt(3, payment.getPayment());
-            statement.setInt(4, payment.getPaymentTypeId());
-            statement.setInt(5, payment.getPaymentStatusId());
+            statement.setInt(1, paymentRequest.getBookingId());
+            statement.setObject(2, paymentRequest.getDate());
+            statement.setInt(3, paymentRequest.getPayment());
+            statement.setInt(4, paymentRequest.getPaymentTypeId());
+            statement.setInt(5, paymentRequest.getPaymentStatusId());
             statement.setInt(6, id);
             statement.executeUpdate();
+            var payment = new Payments();
+            payment.setId(id);
+            payment.setBookingId(paymentRequest.getBookingId());
+            payment.setDate(paymentRequest.getDate());
+            payment.setPayment(paymentRequest.getPayment());
+            payment.setPaymentTypeId(paymentRequest.getPaymentTypeId());
+            payment.setPaymentStatusId(paymentRequest.getPaymentStatusId());
+
             return ResponseEntity.ok(payment);
         } catch (SQLException e) {
             log.error("Error updating payment", e);

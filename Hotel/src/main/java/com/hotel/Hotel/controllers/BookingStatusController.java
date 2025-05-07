@@ -1,5 +1,6 @@
 package com.hotel.Hotel.controllers;
 
+import com.hotel.Hotel.common.request.BookingStatusRequest;
 import com.hotel.Hotel.models.BookingStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -42,7 +43,7 @@ public class BookingStatusController {
     }
 
     @PostMapping()
-    public ResponseEntity<BookingStatus> createBookingStatus(BookingStatus bookingStatus) {
+    public ResponseEntity<BookingStatus> createBookingStatus(BookingStatusRequest bookingStatusRequest) {
         try {
             var maxIdStatement = jdbcConnection.prepareStatement("SELECT COALESCE(MAX(ID), 0) + 1 AS NEXT_ID FROM NBP09.NBP_BOOKING_STATUS");
             var resultSet = maxIdStatement.executeQuery();
@@ -53,10 +54,17 @@ public class BookingStatusController {
 
             var statement = jdbcConnection.prepareStatement("INSERT INTO NBP09.NBP_BOOKING_STATUS(ID, STATUS, DESCRIPTION, ACTIVE) VALUES (?, ?, ?, ?)", new String[]{"ID"});
             statement.setInt(1, nextId);
-            statement.setString(2, bookingStatus.getStatus());
-            statement.setString(3, bookingStatus.getDescription());
-            statement.setInt(4, bookingStatus.getActive());
+            statement.setString(2, bookingStatusRequest.getStatus());
+            statement.setString(3, bookingStatusRequest.getDescription());
+            statement.setInt(4, bookingStatusRequest.getActive());
             statement.executeUpdate();
+
+            var bookingStatus = new BookingStatus();
+            bookingStatus.setId(nextId);
+            bookingStatus.setStatus(bookingStatusRequest.getStatus());
+            bookingStatus.setDescription(bookingStatusRequest.getDescription());
+            bookingStatus.setActive(bookingStatusRequest.getActive());
+
             var generatedKeys = statement.getGeneratedKeys();
             if (generatedKeys.next()) {
                 bookingStatus.setId(generatedKeys.getInt(1));
@@ -69,14 +77,21 @@ public class BookingStatusController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<BookingStatus> updatePayment(@PathVariable Integer id, @RequestBody BookingStatus bookingStatus) {
+    public ResponseEntity<BookingStatus> updatePayment(@PathVariable Integer id, @RequestBody BookingStatusRequest bookingStatusRequest) {
         try {
             var statement = jdbcConnection.prepareStatement("UPDATE NBP09.NBP_BOOKING_STATUS SET STATUS = ?, DESCRIPTION = ?, ACTIVE = ? WHERE ID = ?");
-            statement.setString(1, bookingStatus.getStatus());
-            statement.setString(2, bookingStatus.getDescription());
-            statement.setInt(3, bookingStatus.getActive());
+            statement.setString(1, bookingStatusRequest.getStatus());
+            statement.setString(2, bookingStatusRequest.getDescription());
+            statement.setInt(3, bookingStatusRequest.getActive());
             statement.setInt(4, id);
             statement.executeUpdate();
+
+            var bookingStatus = new BookingStatus();
+            bookingStatus.setId(id);
+            bookingStatus.setStatus(bookingStatusRequest.getStatus());
+            bookingStatus.setDescription(bookingStatusRequest.getDescription());
+            bookingStatus.setActive(bookingStatusRequest.getActive());
+
             return ResponseEntity.ok(bookingStatus);
         } catch (SQLException e) {
             log.error("Error updating booking status", e);

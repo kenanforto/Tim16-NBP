@@ -1,5 +1,6 @@
 package com.hotel.Hotel.controllers;
 
+import com.hotel.Hotel.common.request.RoomBookedRequest;
 import com.hotel.Hotel.models.RoomBooked;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -41,7 +42,7 @@ public class RoomBookedController {
     }
 
     @PostMapping()
-    public ResponseEntity<RoomBooked> createRoomBooked(RoomBooked roomBooked) {
+    public ResponseEntity<RoomBooked> createRoomBooked(RoomBookedRequest roomBookedRequest) {
         try {
             var maxIdStatement = jdbcConnection.prepareStatement("SELECT COALESCE(MAX(ID), 0) + 1 AS NEXT_ID FROM NBP09.NBP_ROOM_BOOKED");
             var resultSet = maxIdStatement.executeQuery();
@@ -52,9 +53,15 @@ public class RoomBookedController {
 
             var statement = jdbcConnection.prepareStatement("INSERT INTO NBP09.NBP_ROOM_BOOKED (ID, BOOKING_ID, ROOM_ID) VALUES (?, ?, ?)", new String[]{"ID"});
             statement.setInt(1, nextId);
-            statement.setInt(2, roomBooked.getBookingId());
-            statement.setInt(3, roomBooked.getRoomId());
+            statement.setInt(2, roomBookedRequest.getBookingId());
+            statement.setInt(3, roomBookedRequest.getRoomId());
             statement.executeUpdate();
+
+            var roomBooked = new RoomBooked();
+            roomBooked.setId(nextId);
+            roomBooked.setBookingId(roomBooked.getBookingId());
+            roomBooked.setRoomId(roomBookedRequest.getRoomId());
+
             var generatedKeys = statement.getGeneratedKeys();
             if (generatedKeys.next()) {
                 roomBooked.setId(generatedKeys.getInt(1));
@@ -67,13 +74,19 @@ public class RoomBookedController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<RoomBooked> updateRoomBooked(@PathVariable Integer id, @RequestBody RoomBooked roomBooked) {
+    public ResponseEntity<RoomBooked> updateRoomBooked(@PathVariable Integer id, @RequestBody RoomBookedRequest roomBookedRequest) {
         try {
             var statement = jdbcConnection.prepareStatement("UPDATE NBP09.NBP_ROOM_BOOKED SET BOOKING_ID = ?, ROOM_ID = ? WHERE ID = ?");
-            statement.setInt(1, roomBooked.getBookingId());
-            statement.setInt(2, roomBooked.getRoomId());
+            statement.setInt(1, roomBookedRequest.getBookingId());
+            statement.setInt(2, roomBookedRequest.getRoomId());
             statement.setInt(3, id);
             statement.executeUpdate();
+
+            var roomBooked = new RoomBooked();
+            roomBooked.setId(id);
+            roomBooked.setBookingId(roomBookedRequest.getBookingId());
+            roomBooked.setRoomId(roomBookedRequest.getRoomId());
+
             return ResponseEntity.ok(roomBooked);
         } catch (SQLException e) {
             log.error("Error updating room booked", e);

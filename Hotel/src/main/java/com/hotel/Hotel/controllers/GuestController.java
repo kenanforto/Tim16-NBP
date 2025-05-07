@@ -1,5 +1,6 @@
 package com.hotel.Hotel.controllers;
 
+import com.hotel.Hotel.common.request.GuestRequest;
 import com.hotel.Hotel.models.Guest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -73,7 +74,7 @@ public class GuestController {
     }
 
     @PostMapping("")
-    public ResponseEntity<Guest> create(@RequestBody Guest savedGuest) {
+    public ResponseEntity<Guest> create(@RequestBody GuestRequest guestRequest) {
         Integer guestId=1;
         try {
             ResultSet resultSet=jdbcConnection.prepareStatement("SELECT MAX(ID) FROM NBP09.NBP_GUESTS").executeQuery();
@@ -87,21 +88,30 @@ public class GuestController {
             log.error("Error with creating guest", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new Guest());
         }
-        System.out.println("nejla "+ savedGuest);
+        System.out.println("nejla "+ guestRequest);
         try {
             PreparedStatement statement = jdbcConnection.prepareStatement(
                     "INSERT INTO NBP09.NBP_GUESTS (ID, FIRST_NAME, LAST_NAME, EMAIL, ADDRESS_ID, PHONE_NUMBER, BIRTH_DATE) VALUES (?, ?, ?, ?, ?, ?, ?)");
             statement.setInt(1, guestId);
-            statement.setString(2, savedGuest.getFirstName());
-            statement.setString(3, savedGuest.getLastName());
-            statement.setString(4, savedGuest.getEmail());
-            statement.setInt(5, savedGuest.getAddressId());
-            statement.setString(6, savedGuest.getPhoneNumber());
-            statement.setDate(7, savedGuest.getBirthDate());
+            statement.setString(2, guestRequest.getFirstName());
+            statement.setString(3, guestRequest.getLastName());
+            statement.setString(4, guestRequest.getEmail());
+            statement.setInt(5, guestRequest.getAddressId());
+            statement.setString(6, guestRequest.getPhoneNumber());
+            statement.setDate(7, guestRequest.getBirthDate());
 
             statement.executeQuery();
-            savedGuest.setId(guestId);
-            return ResponseEntity.status(HttpStatus.CREATED).body(savedGuest);
+
+            var guest = new Guest();
+            guest.setId(guestId);
+            guest.setFirstName(guestRequest.getFirstName());
+            guest.setLastName(guestRequest.getLastName());
+            guest.setEmail(guestRequest.getEmail());
+            guest.setAddressId(guestRequest.getAddressId());
+            guest.setPhoneNumber(guestRequest.getPhoneNumber());
+            guest.setBirthDate(guestRequest.getBirthDate());
+
+            return ResponseEntity.status(HttpStatus.CREATED).body(guest);
 
         } catch (SQLException e) {
             log.error("Error creating guest", e);

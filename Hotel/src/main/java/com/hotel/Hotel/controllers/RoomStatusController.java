@@ -1,5 +1,6 @@
 package com.hotel.Hotel.controllers;
 
+import com.hotel.Hotel.common.request.RoomStatusRequest;
 import com.hotel.Hotel.models.RoomStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -40,7 +41,7 @@ public class RoomStatusController {
     }
 
     @PostMapping()
-    public ResponseEntity<RoomStatus> createRoomStatus(RoomStatus roomStatus) {
+    public ResponseEntity<RoomStatus> createRoomStatus(RoomStatusRequest roomStatusRequest) {
         try {
             var maxIdStatement = jdbcConnection.prepareStatement("SELECT COALESCE(MAX(ID), 0) + 1 AS NEXT_ID FROM NBP09.NBP_ROOM_STATUS");
             var resultSet = maxIdStatement.executeQuery();
@@ -50,9 +51,14 @@ public class RoomStatusController {
             }
 
             var statement = jdbcConnection.prepareStatement("INSERT INTO NBP09.NBP_ROOM_STATUS (DESCRIPTION, ID) VALUES (?, ?)", new String[]{"ID"});
-            statement.setString(1, roomStatus.getDescription());
+            statement.setString(1, roomStatusRequest.getDescription());
             statement.setInt(2, nextId);
             statement.executeUpdate();
+
+            var roomStatus = new RoomStatus();
+            roomStatus.setId(nextId);
+            roomStatus.setDescription(roomStatusRequest.getDescription());
+
             var generatedKeys = statement.getGeneratedKeys();
             if (generatedKeys.next()) {
                 roomStatus.setId(generatedKeys.getInt(1));
@@ -65,12 +71,17 @@ public class RoomStatusController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<RoomStatus> updateRoomStatus(@PathVariable Integer id, @RequestBody RoomStatus roomStatus) {
+    public ResponseEntity<RoomStatus> updateRoomStatus(@PathVariable Integer id, @RequestBody RoomStatusRequest roomStatusRequest) {
         try {
             var statement = jdbcConnection.prepareStatement("UPDATE NBP09.NBP_ROOM_STATUS SET DESCRIPTION = ? WHERE ID = ?");
-            statement.setString(1, roomStatus.getDescription());
+            statement.setString(1, roomStatusRequest.getDescription());
             statement.setInt(2, id);
             statement.executeUpdate();
+
+            var roomStatus = new RoomStatus();
+            roomStatus.setId(id);
+            roomStatus.setDescription(roomStatusRequest.getDescription());
+
             return ResponseEntity.ok(roomStatus);
         } catch (SQLException e) {
             log.error("Error updating room status", e);

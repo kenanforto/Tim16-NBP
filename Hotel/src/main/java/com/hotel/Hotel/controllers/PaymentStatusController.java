@@ -1,6 +1,7 @@
 package com.hotel.Hotel.controllers;
 
 
+import com.hotel.Hotel.common.request.PaymentStatusRequest;
 import com.hotel.Hotel.models.PaymentStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -42,7 +43,7 @@ public class PaymentStatusController {
     }
 
     @PostMapping()
-    public ResponseEntity<PaymentStatus> createPaymentStatus(PaymentStatus paymentStatus) {
+    public ResponseEntity<PaymentStatus> createPaymentStatus(PaymentStatusRequest paymentStatusRequest) {
         try {
             var maxIdStatement = jdbcConnection.prepareStatement("SELECT COALESCE(MAX(ID), 0) + 1 AS NEXT_ID FROM NBP09.NBP_PAYMENT_STATUS");
             var resultSet = maxIdStatement.executeQuery();
@@ -53,9 +54,15 @@ public class PaymentStatusController {
 
             var statement = jdbcConnection.prepareStatement("INSERT INTO NBP09.NBP_PAYMENT_STATUS (ID, STATUS, DESCRIPTION) VALUES (?, ?, ?)", new String[]{"ID"});
             statement.setInt(1, nextId);
-            statement.setString(2, paymentStatus.getStatus());
-            statement.setString(3, paymentStatus.getDescription());
+            statement.setString(2, paymentStatusRequest.getStatus());
+            statement.setString(3, paymentStatusRequest.getDescription());
             statement.executeUpdate();
+
+            var paymentStatus = new PaymentStatus();
+            paymentStatus.setId(nextId);
+            paymentStatus.setStatus(paymentStatusRequest.getStatus());
+            paymentStatus.setDescription(paymentStatusRequest.getDescription());
+
             var generatedKeys = statement.getGeneratedKeys();
             if (generatedKeys.next()) {
                 paymentStatus.setId(generatedKeys.getInt(1));
@@ -68,13 +75,19 @@ public class PaymentStatusController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<PaymentStatus> updatePaymentStatus(@PathVariable Integer id, @RequestBody PaymentStatus paymentStatus) {
+    public ResponseEntity<PaymentStatus> updatePaymentStatus(@PathVariable Integer id, @RequestBody PaymentStatusRequest paymentStatusRequest) {
         try {
             var statement = jdbcConnection.prepareStatement("UPDATE NBP09.NBP_PAYMENT_STATUS SET STATUS = ?, DESCRIPTION = ? WHERE ID = ?");
-            statement.setString(1, paymentStatus.getStatus());
-            statement.setString(2, paymentStatus.getDescription());
+            statement.setString(1, paymentStatusRequest.getStatus());
+            statement.setString(2, paymentStatusRequest.getDescription());
             statement.setInt(3, id);
             statement.executeUpdate();
+
+            var paymentStatus = new PaymentStatus();
+            paymentStatus.setId(id);
+            paymentStatus.setStatus(paymentStatusRequest.getStatus());
+            paymentStatus.setDescription(paymentStatusRequest.getDescription());
+
             return ResponseEntity.ok(paymentStatus);
         } catch (SQLException e) {
             log.error("Error updating payment status", e);
