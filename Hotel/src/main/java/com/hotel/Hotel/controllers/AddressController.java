@@ -104,15 +104,22 @@ public class AddressController {
         }
     }
     @PutMapping("/{id}")
-    public ResponseEntity<Address> updateAddress(@PathVariable Integer id, @RequestBody Address address) {
+    public ResponseEntity<Address> updateAddress(@PathVariable Integer id, @RequestBody AddressRequest addressRequest) {
         try {
+            var updatedAddress=new Address(
+                    id,
+                    addressRequest.getStreet(),
+                    addressRequest.getCity(),
+                    addressRequest.getCountry(),
+                    addressRequest.getZipCode()
+            );
             var statement = jdbcConnection.prepareStatement("UPDATE NBP09.NBP_ADDRESS SET STREET = ?, CITY = ?, COUNTRY = ?, ZIP_CODE = ?");
-            statement.setString(1, address.getStreet());
-            statement.setString(2, address.getCity());
-            statement.setObject(3, address.getCountry());
-            statement.setObject(4, address.getZipCode());
+            statement.setString(1, addressRequest.getStreet());
+            statement.setString(2, addressRequest.getCity());
+            statement.setObject(3, addressRequest.getCountry());
+            statement.setObject(4, addressRequest.getZipCode());
             statement.executeUpdate();
-            return ResponseEntity.ok(address);
+            return ResponseEntity.ok(updatedAddress);
         } catch (SQLException e) {
             log.error("Error updating address", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new Address());
