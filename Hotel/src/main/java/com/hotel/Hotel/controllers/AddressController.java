@@ -1,5 +1,6 @@
 package com.hotel.Hotel.controllers;
 
+import com.hotel.Hotel.common.request.AddressRequest;
 import com.hotel.Hotel.models.Address;
 
 import lombok.RequiredArgsConstructor;
@@ -67,7 +68,7 @@ public class AddressController {
     }
 
     @PostMapping()
-    public ResponseEntity<Address> saveAddress(@RequestBody Address address) {
+    public ResponseEntity<Address> saveAddress(@RequestBody AddressRequest addressRequest) {
         Address saveAddress;
         Integer addressId=1;
         try {
@@ -84,10 +85,10 @@ public class AddressController {
         try {
             saveAddress = new Address(
                     addressId,
-                    address.getStreet(),
-                    address.getCity(),
-                    address.getCountry(),
-                    address.getZipCode()
+                    addressRequest.getStreet(),
+                    addressRequest.getCity(),
+                    addressRequest.getCountry(),
+                    addressRequest.getZipCode()
             );
             var prepareStatement = jdbcConnection.prepareStatement("INSERT INTO NBP09.NBP_ADDRESS (ID, STREET, CITY, COUNTRY, ZIP_CODE) VALUES(?, ?, ?, ?, ?)");
             prepareStatement.setInt(1,saveAddress.getId());

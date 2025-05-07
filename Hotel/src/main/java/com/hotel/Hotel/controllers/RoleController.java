@@ -1,5 +1,6 @@
 package com.hotel.Hotel.controllers;
 
+import com.hotel.Hotel.common.request.RoleRequest;
 import com.hotel.Hotel.models.Address;
 import com.hotel.Hotel.models.Role;
 import lombok.RequiredArgsConstructor;
@@ -57,7 +58,7 @@ public class RoleController {
     }
 
     @PostMapping()
-    public ResponseEntity<Role> saveRole(@RequestBody Role role) {
+    public ResponseEntity<Role> saveRole(@RequestBody RoleRequest roleRequest) {
         Role saveRole;
         Integer roleId=1;
         try {
@@ -74,7 +75,7 @@ public class RoleController {
         try {
             saveRole = new Role(
                     roleId,
-                    role.getName()
+                    roleRequest.getName()
             );
             var prepareStatement = jdbcConnection.prepareStatement("INSERT INTO NBP.NBP_ROLE (ID, NAME) VALUES(?, ?)");
             prepareStatement.setInt(1,saveRole.getId());
