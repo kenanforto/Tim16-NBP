@@ -88,14 +88,19 @@ public class RoleController {
         }
     }
     @PutMapping("/{id}")
-    public ResponseEntity<Role> updateRole(@PathVariable Integer id, @RequestBody Role role) {
+    public ResponseEntity<Role> updateRole(@PathVariable Integer id, @RequestBody RoleRequest roleRequest) {
         try {
+            var updatedRole=new Role(
+                    id,
+                    roleRequest.getName()
+            );
             var statement = jdbcConnection.prepareStatement("UPDATE NBP.NBP_ROLE SET NAME = ?");
-            statement.setString(1, role.getName());
-            statement.executeUpdate();
-            return ResponseEntity.ok(role);
+            statement.setString(1, roleRequest.getName());
+            var resultSet=statement.executeUpdate();
+
+            return ResponseEntity.ok(updatedRole);
         } catch (SQLException e) {
-            log.error("Error updating address", e);
+            log.error("Error updating role", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new Role());
         }
     }
