@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { loginUser } from '../api/services/authService';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
+import { Button, TextField, Typography, Container, Box } from '@mui/material';
 
 function Login() {
   const [username, setUsername] = useState('');
@@ -17,7 +18,7 @@ function Login() {
       await loginUser({ username, password });
       navigate('/');
     } catch (err) {
-        console.log('Login error:', err);
+      console.log('Login error:', err);
       if (axios.isAxiosError(err) && err.response) {
         setError(err.response.data?.error || 'Login failed. Please try again.');
       } else {
@@ -27,33 +28,47 @@ function Login() {
   };
 
   return (
-    <div>
-      <h1>Login Page</h1>
-      <form onSubmit={handleLogin}>
-        <div>
-          <label htmlFor="username">Username:</label>
-          <input
-            type="text"
-            id="username"
+    <Container maxWidth="sm">
+      <Box
+        display="flex"
+        flexDirection="column"
+        justifyContent="center"
+        alignItems="center"
+        minHeight="100vh"
+      >
+        <Typography variant="h4" component="h1" gutterBottom>
+          Hotel System
+        </Typography>
+        <form onSubmit={handleLogin} style={{ width: '100%' }}>
+          <TextField
+            label="Username"
+            variant="outlined"
+            fullWidth
+            margin="normal"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             required
           />
-        </div>
-        <div>
-          <label htmlFor="password">Password:</label>
-          <input
+          <TextField
+            label="Password"
             type="password"
-            id="password"
+            variant="outlined"
+            fullWidth
+            margin="normal"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
           />
-        </div>
-        {error && <p style={{ color: 'red' }}>{error}</p>}
-        <button type="submit">Login</button>
-      </form>
-    </div>
+          {error && <Typography color="error">{error}</Typography>}
+          <Button type="submit" variant="contained" color="primary" fullWidth>
+            Login
+          </Button>
+        </form>
+        <Typography variant="body2" style={{ marginTop: '1rem' }}>
+          Don’t have an account? <Link to="/register">Register here</Link>
+        </Typography>
+      </Box>
+    </Container>
   );
 }
 

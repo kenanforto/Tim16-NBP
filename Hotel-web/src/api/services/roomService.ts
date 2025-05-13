@@ -16,3 +16,7 @@ export const updateRoom = (id: number, data: RoomRequest) => {
 export const deleteRoom = (id: number) => {
   return axios.delete(`/api/room/${id}`);
 };
+
+export const getAllRooms = () => {
+  return axios.get('/api/room');
+};

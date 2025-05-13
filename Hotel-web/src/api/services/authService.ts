@@ -12,3 +12,7 @@ export const loginUser = (data: AuthenticationRequest) => {
 export const getCurrentUser = () => {
   return axios.get('/api/auth/me');
 };
+
+export const logoutUser = () => {
+  localStorage.removeItem('token');
+};
