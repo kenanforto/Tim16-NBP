@@ -20,7 +20,7 @@ public class RoomController {
 
     private final Connection jdbcConnection;
 
-    @GetMapping
+    @GetMapping()
     public ResponseEntity<PageResponse<Room>> getPage(@RequestParam Integer page, @RequestParam Integer size) {
         try {
             var statement = jdbcConnection.prepareStatement("SELECT * FROM NBP09.NBP_ROOMS OFFSET ? ROWS FETCH NEXT ? ROWS ONLY");

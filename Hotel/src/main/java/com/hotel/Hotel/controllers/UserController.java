@@ -1,7 +1,5 @@
 package com.hotel.Hotel.controllers;
 
-
-import com.hotel.Hotel.models.Guest;
 import com.hotel.Hotel.models.Role;
 import com.hotel.Hotel.models.User;
 import lombok.RequiredArgsConstructor;
@@ -58,6 +56,7 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(List.of());
         }
     }
+
     @GetMapping(path="{username}")
     public ResponseEntity<User> getByName(@PathVariable String username) {
         try {
@@ -74,7 +73,6 @@ public class UserController {
                 user.setRoleId(resultSet.getInt("ROLE_ID"));
                 user.setAddressId(resultSet.getInt("ADDRESS_ID"));
             }
-            System.out.println(user);
 
             return ResponseEntity.ok(user);
         } catch (SQLException e) {

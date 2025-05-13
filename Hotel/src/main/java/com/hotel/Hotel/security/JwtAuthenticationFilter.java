@@ -5,6 +5,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -15,32 +16,32 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtService jwtService;
 
-    private final  UserDetailsService userDetailsService;
+    private final UserDetailsService userDetailsService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        final String authHeader=request.getHeader("Authorization");
+        final String authHeader = request.getHeader("Authorization");
         final String token;
         final String email;
-        if(authHeader==null || !authHeader.startsWith("Bearer "))
-        {
-            filterChain.doFilter(request,response);
+        log.info(authHeader);
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            filterChain.doFilter(request, response);
             return;
         }
-        token=authHeader.substring(7);
-        email=jwtService.extractUsername(token);
+        token = authHeader.substring(7);
+        email = jwtService.extractUsername(token);
 
-        if(email!=null && SecurityContextHolder.getContext().getAuthentication()==null) /// provjera da li je vec prijavljen
-        {
-            UserDetails userDetails=this.userDetailsService.loadUserByUsername(email);
-            if(jwtService.isTokenValid(token,userDetails))
-            {
-                UsernamePasswordAuthenticationToken authenticationToken=new UsernamePasswordAuthenticationToken(
+        if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+            /// provjera da li je vec prijavljen
+            UserDetails userDetails = this.userDetailsService.loadUserByUsername(email);
+            if (jwtService.isTokenValid(token, userDetails)) {
+                UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
                         userDetails,
                         null,
                         userDetails.getAuthorities()
@@ -51,7 +52,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 SecurityContextHolder.getContext().setAuthentication(authenticationToken);
             }
         }
-        filterChain.doFilter(request,response);
+        filterChain.doFilter(request, response);
     }
 }
 
