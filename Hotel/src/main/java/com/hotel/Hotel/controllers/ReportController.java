@@ -1,16 +1,16 @@
 package com.hotel.Hotel.controllers;
 
-import com.hotel.Hotel.models.Report;
-import com.hotel.Hotel.repository.ReportRepository;
+import com.itextpdf.text.DocumentException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.util.List;
 
 import com.hotel.Hotel.service.*;
 
@@ -20,24 +20,37 @@ import com.hotel.Hotel.service.*;
 @RequestMapping("/api/download-pdf")
 public class ReportController {
 
-    private final ReportRepository reportRepository; // koristit cemo kasnije, kada napravimo proceduru
     private final PDFService pdfService;
 
     @GetMapping
-    public ResponseEntity<byte[]> generatePdf() throws IOException {
-        List<Report> reports = List.of( // popraviti
-                new Report(
-                        1,
-                        "Nejla",
-                        1.0,
-                        null
-                )
-        );
-        byte[] pdf = pdfService.generatePdf(reports);
+    public ResponseEntity<InputStreamResource> generatePdf() throws IOException {
+        try {
+            byte[] pdfReport = pdfService.generateRoomsBookedByTypePDFReport();
+            ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(pdfReport);
 
-        return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=report.pdf")
-                .contentType(MediaType.APPLICATION_PDF)
-                .body(pdf);
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("Content-Disposition", "attachment; filename=hotel_report.pdf");
+
+            return ResponseEntity.ok()
+                    .headers(headers)
+                    .contentType(MediaType.APPLICATION_PDF)
+                    .body(new InputStreamResource(byteArrayInputStream));
+        } catch (DocumentException e) {
+            throw new RuntimeException(e);
+        }
+//        List<Report> reports = List.of( // popraviti
+//                new Report(
+//                        1,
+//                        "Nejla",
+//                        1.0,
+//                        null
+//                )
+//        );
+//        byte[] pdf = pdfService.generatePdf(reports);
+//
+//        return ResponseEntity.ok()
+//                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=report.pdf")
+//                .contentType(MediaType.APPLICATION_PDF)
+//                .body(pdf);
     }
 }

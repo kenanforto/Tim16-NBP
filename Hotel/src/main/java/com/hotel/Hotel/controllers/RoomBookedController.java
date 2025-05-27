@@ -59,7 +59,7 @@ public class RoomBookedController {
 
             var roomBooked = new RoomBooked();
             roomBooked.setId(nextId);
-            roomBooked.setBookingId(roomBooked.getBookingId());
+            roomBooked.setBookingId(roomBookedRequest.getBookingId());
             roomBooked.setRoomId(roomBookedRequest.getRoomId());
 
             var generatedKeys = statement.getGeneratedKeys();
