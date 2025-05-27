@@ -38,19 +38,5 @@ public class ReportController {
         } catch (DocumentException e) {
             throw new RuntimeException(e);
         }
-//        List<Report> reports = List.of( // popraviti
-//                new Report(
-//                        1,
-//                        "Nejla",
-//                        1.0,
-//                        null
-//                )
-//        );
-//        byte[] pdf = pdfService.generatePdf(reports);
-//
-//        return ResponseEntity.ok()
-//                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=report.pdf")
-//                .contentType(MediaType.APPLICATION_PDF)
-//                .body(pdf);
     }
 }
