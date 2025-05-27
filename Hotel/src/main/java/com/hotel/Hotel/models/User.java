@@ -1,10 +1,12 @@
 package com.hotel.Hotel.models;
 
+import com.hotel.Hotel.common.dto.UserVM;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.sql.Date;
 
@@ -46,5 +48,10 @@ public class User {
         this.birthDate = birthDate;
         this.addressId = addressId;
         this.roleId = roleId;
+    }
+
+    public static UserVM entityToDto(User user){
+        return new UserVM(user.getFirstName(),user.getLastName(),user.getEmail(),user.getPassword(),
+                user.getPhoneNumber(), user.getBirthDate(), user.getAddressId(), user.getRoleId());
     }
 }

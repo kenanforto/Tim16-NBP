@@ -27,7 +27,7 @@ public class UserVM implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority("ADMIN"));
+        return List.of(new SimpleGrantedAuthority("GUEST"));
     }
 
     @Override
