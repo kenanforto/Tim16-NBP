@@ -1,8 +1,11 @@
 package com.hotel.Hotel.controllers;
 
 import com.hotel.Hotel.common.dto.MailBody;
+import com.hotel.Hotel.common.request.RoomBookedRequest;
 import com.hotel.Hotel.models.Role;
+import com.hotel.Hotel.models.RoomBooked;
 import com.hotel.Hotel.models.User;
+import com.hotel.Hotel.security.AuthenticationRequest;
 import com.hotel.Hotel.security.JwtService;
 import com.hotel.Hotel.service.EmailService;
 import lombok.RequiredArgsConstructor;
@@ -186,5 +189,33 @@ public class UserController {
             return new ResponseEntity("Email sending failed", HttpStatus.BAD_REQUEST);
         }
         return ResponseEntity.ok("Email is successfully sent");
+    }
+
+    @PutMapping("/reset-password")
+    public ResponseEntity<User> updateRoomBooked(@RequestBody AuthenticationRequest authenticationRequest) {
+
+        try {
+            var user=getByEmail(authenticationRequest.getUsername()).getBody();
+            if(user.equals(new User()))
+            {
+                return new ResponseEntity<User>(HttpStatus.NOT_FOUND);
+            }
+            var statement = jdbcConnection.prepareStatement("UPDATE NBP09.NBP_USER SET ID=?, FIRST_NAME=?, LAST_NAME=?, EMAIL=?, PASSWORD=?, USERNAME=?, PHONE_NUMBER=?, BIRTH_DATE=?, ADDRESS_ID=?, ROLE_ID=?");
+            statement.setInt(1, user.getId());
+            statement.setString(3,user.getLastName());
+            statement.setString(4,user.getEmail());
+            statement.setString(5,user.getPassword());
+            statement.setString(6,user.getUsername());
+            statement.setString(7,user.getPhoneNumber());
+            statement.setDate(8,user.getBirthDate());
+            statement.setInt(9,user.getAddressId());
+            statement.setInt(10,user.getRoleId());
+            statement.executeUpdate();
+
+            return ResponseEntity.ok(user);
+        } catch (SQLException e) {
+            log.error("Error updating user", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
     }
 }
