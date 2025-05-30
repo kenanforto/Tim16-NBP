@@ -7,15 +7,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -23,6 +22,34 @@ import java.sql.SQLException;
 @RequestMapping("/api/image")
 public class ImageController {
     private final Connection jdbcConnection;
+
+    @GetMapping("/room/{roomId}")
+    public ResponseEntity<List<Image>> getImagesByRoom(@PathVariable Integer roomId){
+        List<Image> images = new ArrayList<>();
+        try {
+            var statement = jdbcConnection.prepareStatement("SELECT * FROM NBP09.NBP_IMAGE WHERE ROOM_ID = ?");
+            statement.setInt(1, roomId);
+            var resultSet = statement.executeQuery();
+            if (resultSet.next()) {
+                var image = new Image();
+                image.setId(resultSet.getInt("ID"));
+                image.setName(resultSet.getString("NAME"));
+                image.setType(resultSet.getString("TYPE"));
+                image.setImageData(resultSet.getBytes("IMAGE_DATA"));
+                image.setRoomId(roomId);
+                images.add(image);
+            } else {
+                return ResponseEntity.notFound().build();
+            }
+            for (Image image:images) {
+                image.setImageData(ImageHelper.decompressImage(image.getImageData()));
+            }
+            return ResponseEntity.ok().body(images);
+        } catch (Exception e) {
+            log.error("Error fetching room by ID", e);
+            return ResponseEntity.status(500).body(null);
+        }
+    }
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
@@ -47,18 +74,18 @@ public class ImageController {
             statement.setInt(5, roomId);
             statement.executeUpdate();
 
-            var paymentStatus = new Image();
-            paymentStatus.setId(nextId);
-            paymentStatus.setName(pImage.getName());
-            paymentStatus.setType(pImage.getType());
-            paymentStatus.setRoomId(roomId);
-            paymentStatus.setImageData(pImage.getImageData());
+            var imageResponse = new Image();
+            imageResponse.setId(nextId);
+            imageResponse.setName(pImage.getName());
+            imageResponse.setType(pImage.getType());
+            imageResponse.setRoomId(roomId);
+            imageResponse.setImageData(pImage.getImageData());
 
             var generatedKeys = statement.getGeneratedKeys();
             if (generatedKeys.next()) {
-                paymentStatus.setId(generatedKeys.getInt(1));
+                imageResponse.setId(generatedKeys.getInt(1));
             }
-            return ResponseEntity.status(HttpStatus.CREATED).body(paymentStatus);
+            return ResponseEntity.status(HttpStatus.CREATED).body(imageResponse);
         } catch (SQLException e) {
             log.error("Error creating image", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
