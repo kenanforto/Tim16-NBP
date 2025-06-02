@@ -1,5 +1,6 @@
 import { Outlet, Link, useNavigate } from 'react-router-dom';
 import { AppBar, Toolbar, Typography, Button, Container } from '@mui/material';
+import logo from '../assets/logo.png';
 
 function Layout() {
   const navigate = useNavigate();
@@ -12,17 +13,19 @@ function Layout() {
   return (
     <>
       <AppBar position="static">
-        <Toolbar>
+        <Toolbar sx={{
+          backgroundColor: '#e7d9b9',
+        }}>
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            Hotel Booking System
+            <img src={logo} alt="Logo" style={{ height: '32px' }} />
           </Typography>
-          <Button color="inherit" component={Link} to="/">
+          <Button component={Link} to="/" sx={{color:'#000'}}>
             Home
           </Button>
-          <Button color="inherit" component={Link} to="/rooms">
+          <Button component={Link} to="/rooms"  sx={{color:'#000'}}>
             Rooms
           </Button>
-          <Button color="inherit" onClick={handleLogout}>
+          <Button onClick={handleLogout}  sx={{color:'#000'}}>
             Logout
           </Button>
         </Toolbar>
