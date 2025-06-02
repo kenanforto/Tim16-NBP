@@ -1,4 +1,6 @@
 import axios from 'axios';
+import { decodeJwtToken } from './util';
+import type { User } from '../types/user';
 
 const instance = axios.create({
   baseURL: 'http://localhost:8080',
@@ -23,6 +25,10 @@ instance.interceptors.response.use(
     if (authHeader) {
       const token = authHeader.split(' ')[1]; // Extract token from 'Bearer <token>'
       localStorage.setItem('token', token);
+      const claims = decodeJwtToken<{roles: string[], sub: string}>(token)
+      const user = { roles: claims?.roles, email: claims?.sub} as User
+      console.log('User', user)
+      // set user in context: maybe in App.tsx :D 
     }
     return response;
   },
