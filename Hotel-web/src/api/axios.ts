@@ -16,6 +16,11 @@ instance.interceptors.request.use((config) => {
 
 instance.interceptors.response.use(
   (response) => {
+    const statusCode = response.status;
+    if (statusCode==401) {
+      localStorage.clear();
+      return response;
+    }
     const headers = response.headers;
     if (headers === undefined || headers === null) {
       return response;
