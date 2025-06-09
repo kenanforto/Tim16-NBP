@@ -46,7 +46,7 @@ public class ImageController {
             }
             return ResponseEntity.ok().body(images);
         } catch (Exception e) {
-            log.error("Error fetching room by ID", e);
+            log.error("Error fetching image for room", e);
             return ResponseEntity.status(500).body(null);
         }
     }

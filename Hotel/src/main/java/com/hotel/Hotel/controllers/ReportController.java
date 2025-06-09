@@ -36,7 +36,8 @@ public class ReportController {
                     .contentType(MediaType.APPLICATION_PDF)
                     .body(new InputStreamResource(byteArrayInputStream));
         } catch (DocumentException e) {
-            throw new RuntimeException(e);
+            log.error("Error fetching report", e);
+            return ResponseEntity.status(500).body(null);
         }
     }
 }
