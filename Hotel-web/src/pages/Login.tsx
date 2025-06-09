@@ -40,15 +40,6 @@ function Login() {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        '&::before': {
-          content: '""',
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          backgroundColor: 'rgba(255, 255, 255, 0.2)',
-        },
       }}
     >
       <Container maxWidth="sm" sx={{ bgcolor: 'rgba(255, 255, 255, 0.65)', borderRadius: 2, p: 4 }}>
@@ -80,7 +71,7 @@ function Login() {
             Login
           </Button>
         </form>
-        <Typography variant="body2" align="center" sx={{ mt: 2 }}>
+        <Typography variant="body2" align="center" sx={{ mt: 2 }} style={{ zIndex: 9999 }}>
           Don’t have an account? 
           <Link to="/register" style={{ color: 'black', fontWeight: 'bold' }}>
           Register here

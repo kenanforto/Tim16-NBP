@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { decodeJwtToken } from './util';
 import type { User } from '../types/user';
+import constants from '../constants';
 
 const instance = axios.create({
   baseURL: 'http://localhost:8080',
@@ -17,7 +18,7 @@ instance.interceptors.request.use((config) => {
 instance.interceptors.response.use(
   (response) => {
     const statusCode = response.status;
-    if (statusCode==401) {
+    if (statusCode == 401) {
       localStorage.clear();
       return response;
     }
@@ -30,17 +31,19 @@ instance.interceptors.response.use(
     if (authHeader) {
       const token = authHeader.split(' ')[1]; // Extract token from 'Bearer <token>'
       localStorage.setItem('token', token);
-      const claims = decodeJwtToken<{roles: string[], sub: string}>(token)
-      const user = { roles: claims?.roles, email: claims?.sub} as User
-      console.log('User', user)
-      // set user in context: maybe in App.tsx :D 
+      const claims = decodeJwtToken<{ role: string; sub: string }>(token);
+      const user = { role: claims?.role, email: claims?.sub } as User;
+      console.log('User', user);
+      // Broadcast user info to context
+      window.postMessage({ type: 'SET_USER', user }, '*');
     }
     return response;
   },
   (error) => {
     if (error.response && error.response.status === 401) {
+      window.postMessage({ type: 'LOGOUT_USER' }, '*');
       console.error('Unauthorized access', error);
-      if (window.location.pathname !== '/login') {
+      if (!constants.publicPaths.includes(window.location.pathname)) {
         console.log('Redirecting to login page');
         window.location.href = '/login';
         console.log('Redirected to login page', error);

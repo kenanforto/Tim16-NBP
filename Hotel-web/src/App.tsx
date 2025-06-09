@@ -7,22 +7,25 @@ import NotFound from './pages/NotFound';
 import Layout from './components/Layout';
 import Rooms from './pages/Rooms';
 import { SnackbarProvider } from 'notistack';
-
+import { UserProvider } from './context/UserContext';
 function App() {
+
   return (
     <SnackbarProvider maxSnack={3} autoHideDuration={3000}>
-      <Router>
-        <Routes>
-          <Route element={<Layout />}>
-            <Route path="/" element={<Home />} />
-            <Route path="/rooms" element={<Rooms />} />
-            <Route path="*" element={<NotFound />} />
-          </Route>
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-        </Routes>
-      </Router>
-    </SnackbarProvider>
+        <Router>
+          <UserProvider>
+            <Routes>
+              <Route element={<Layout />}>
+                <Route path="/" element={<Home />} />
+                <Route path="/rooms" element={<Rooms />} />
+                <Route path="*" element={<NotFound />} />
+              </Route>
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+            </Routes>
+          </UserProvider>
+        </Router>
+      </SnackbarProvider>
   );
 }
 

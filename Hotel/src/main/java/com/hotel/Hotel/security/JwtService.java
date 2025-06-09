@@ -5,10 +5,12 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.security.Key;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -52,7 +54,12 @@ public class JwtService {
     public String generateToken(UserDetails userDetails)
     {
         Map<String , Object> claims=new HashMap<>();
-        claims.put("roles",userDetails.getAuthorities());
+        Collection<? extends GrantedAuthority> authorities = userDetails.getAuthorities();
+        if (authorities != null && !authorities.isEmpty()) {
+            String role = authorities.stream()
+                    .map(GrantedAuthority::getAuthority).findFirst().orElse("UNKNOWN");
+            claims.put("role", role);
+        }
         return generateToken(claims,userDetails);
     }
 
