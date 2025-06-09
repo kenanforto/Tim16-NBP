@@ -10,6 +10,9 @@ import {
   Stack,
   Grid,
 } from '@mui/material';
+import { Link } from 'react-router-dom';
+import logo from '../assets/logo.png';
+import bgVideo from '../assets/bgVideo.mp4';
 
 const rooms = [
   {
@@ -41,60 +44,128 @@ const rooms = [
 function Home() {
   return (
     <Box>
+
+      <Box
+        sx={{
+          position: 'relative',
+          height: '80vh',
+          overflow: 'hidden',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          backgroundColor: '#000'
+        }}
+      >
+        {/* Background Video */}
+        <video
+          autoPlay
+          muted
+          loop
+          playsInline
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            minWidth: '100%',
+            minHeight: '100%',
+            objectFit: 'cover',
+            zIndex: 0,
+          }}
+        >
+          <source src={bgVideo} type="video/mp4" />
+          Your browser does not support the video tag.
+        </video>
+
+        {/* Centered Logo */}
+        <Box
+          sx={{
+            position: 'relative',
+            zIndex: 1,
+            textAlign: 'center',
+          }}
+        >
+          <img src={logo} alt="TranquilStays Logo" style={{ width: 180, maxWidth: '80%' }} />
+        </Box>
+
+        {/* Optional: Overlay */}
+        <Box
+          sx={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            background: 'rgba(0,0,0,0.3)', // soft overlay
+            zIndex: 1,
+          }}
+        />
+      </Box>
+
+
       {/* Hero Section */}
       <Container sx={{ py: 6 }}>
-        <Box display="flex" justifyContent="space-between" alignItems="center" mb={4}>
+        <Box display="flex" justifyContent="space-between" alignItems="center" mb={5}>
           <Typography variant="h5" fontWeight={600}>
             Explore Best Rooms
           </Typography>
-          <Stack direction="row" spacing={2}>
-            <Button variant="contained" sx={{borderRadius:'22px', backgroundColor: '#587681'}}>
+          <Link to="/rooms" style={{ textDecoration: 'none' }}>
+            <Button variant="contained"
+              sx={{
+                backgroundColor: 'transparent',
+                border: '1px solid #6f7170',
+                color: '#919393',
+                boxShadow: 'none',
+                borderRadius: 0,
+                '&:hover': {
+                  backgroundColor: '#717372',
+                  color: '#fff'
+                },
+              }}
+            >
               View All →
             </Button>
-          </Stack>
+          </Link>
         </Box>
 
-        <Grid container spacing={3}>
+        <Grid container spacing={4}>
           {rooms.map((room, index) => (
             <Grid key={index}>
               <Card
                 sx={{
-                  width: 300,
-                  display: 'flex',
-                  flexDirection: 'column',
-                  justifyContent: 'space-between',
-                  position: 'relative',
-                  borderRadius: 3,
-                  cursor: 'pointer',
+                  height: '100%',
+                  borderRadius: 4,
+                  overflow: 'hidden',
+                  boxShadow: 3,
                   transition: 'transform 0.3s ease, box-shadow 0.3s ease',
                   '&:hover': {
-                    transform: 'translateY(-8px)',
+                    transform: 'translateY(-6px)',
                     boxShadow: 6,
-                    cursor: 'pointer'
                   },
                 }}
               >
-                <CardMedia
-                  component="img"
-                  height="200"
-                  image={room.image}
-                  alt={room.name}
-                />
-                <Chip
-                  label={room.price}
-                  sx={{
-                    position: 'absolute',
-                    top: 16,
-                    right: 16,
-                    backgroundColor: 'white',
-                    fontWeight: 'bold',
-                  }}
-                />
+                <Box position="relative">
+                  <CardMedia
+                    component="img"
+                    height="200"
+                    image={room.image}
+                    alt={room.name}
+                  />
+                  <Chip
+                    label={room.price}
+                    sx={{
+                      position: 'absolute',
+                      top: 12,
+                      right: 12,
+                      backgroundColor: '#fff',
+                      fontWeight: 600,
+                    }}
+                  />
+                </Box>
                 <CardContent>
-                  <Typography variant="caption" color="text.secondary">
+                  <Typography variant="body2" color="text.secondary">
                     {room.location}
                   </Typography>
-                  <Typography variant="subtitle1" fontWeight={600}>
+                  <Typography variant="h6" fontWeight={600}>
                     {room.name}
                   </Typography>
                 </CardContent>
@@ -102,44 +173,51 @@ function Home() {
             </Grid>
           ))}
         </Grid>
-
-
       </Container>
 
       {/* Promo Section */}
-      <Box textAlign="center" bgcolor="#f9f9f9" py={10} px={2} sx={{
-        display:'flex', flexDirection:'column', alignItems:'center'
-      }}>
-        <Typography variant="subtitle2" fontWeight="medium" mb={1}>
+      <Box textAlign="center" bgcolor="#fafafa" py={10} px={2}>
+        <Typography variant="subtitle2" fontWeight={500} mb={1}>
           Explore Rooms
         </Typography>
-        <Typography variant="h4" fontWeight="bold" mb={2}>
+        <Typography variant="h4" fontWeight={700} mb={2}>
           Discover luxurious room options
-          <br />
-          Book your perfect stay with ease
         </Typography>
         <Typography variant="body1" color="text.secondary" maxWidth="600px" mx="auto" mb={3}>
           Find the most comfortable and stylish rooms tailored to your travel needs.
         </Typography>
-        <Button variant="contained" size="large" sx={{ borderRadius: '999px' }}>
-         Explore Rooms →
-        </Button>
+        <Link to="/rooms" style={{ textDecoration: 'none' }}>
+          <Button variant="contained"
+            sx={{
+              backgroundColor: 'transparent',
+              border: '1px solid #6f7170',
+              color: '#919393',
+              boxShadow: 'none',
+              borderRadius: 0,
+              '&:hover': {
+                backgroundColor: '#717372',
+                color: '#fff'
+              },
+            }}
+          >
+            Explore Rooms →
+          </Button>
+        </Link>
         <Typography variant="caption" color="text.secondary" mt={2}>
           Cancel anytime. No hidden fees.
         </Typography>
       </Box>
 
-
       {/* Gallery + Community */}
-      <Box bgcolor="#f9f9f9" px={2} py={8}>
-        <Grid container spacing={2} mb={6} alignItems={'center'} justifyContent={'center'}>
+      <Box bgcolor="#f4f4f4" px={2} py={8}>
+        <Grid container spacing={2} mb={6} justifyContent="center">
           {[...Array(6)].map((_, i) => (
-            <Grid key={i} sx={{display:'flex', flexDirection:'column', alignItems:'center'}}>
+            <Grid key={i}>
               <CardMedia
                 component="img"
                 image={rooms[i % rooms.length].image}
                 alt={`room-${i}`}
-                sx={{ borderRadius: 2, height: 160, objectFit: 'cover' }}
+                sx={{ borderRadius: 3, height: 160, width: 240, objectFit: 'cover' }}
               />
             </Grid>
           ))}
@@ -157,12 +235,26 @@ function Home() {
           <Typography variant="h6" fontWeight={600} mb={1}>
             Book Today!
           </Typography>
-          <Typography color="text.secondary" mb={2}>
-          Book your room and enjoy premium stays
+          <Typography color="text.secondary" mb={3}>
+            Book your room and enjoy premium stays
           </Typography>
-          <Button variant="contained" size="medium" sx={{ borderRadius: '999px' }}>
-            Explore Rooms →
-          </Button>
+          <Link to="/rooms" style={{ textDecoration: 'none' }}>
+            <Button variant="contained"
+              sx={{
+                backgroundColor: 'transparent',
+                border: '1px solid #6f7170',
+                color: '#919393',
+                boxShadow: 'none',
+                borderRadius: 0,
+                '&:hover': {
+                  backgroundColor: '#717372',
+                  color: '#fff'
+                },
+              }}
+            >
+              Explore Rooms →
+            </Button>
+          </Link>
         </Box>
       </Box>
     </Box>
