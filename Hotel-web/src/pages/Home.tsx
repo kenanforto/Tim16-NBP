@@ -336,22 +336,34 @@ function Home() {
 
             <LocalizationProvider dateAdapter={AdapterDayjs}>
             <DatePicker
-                label="From Date"
-                value={fromDate}
-                onChange={(newDate) => setFromDate(newDate)}
-              />
-              <DatePicker
-                label="To Date"
-                value={toDate}
-                onChange={(newDate) => setToDate(newDate)}
-
-              />
+              label="From Date"
+              value={fromDate}
+              onChange={(newDate) => setFromDate(newDate)}
+              sx={{ mb: 2 }}
+            />
+            <DatePicker
+              label="To Date"
+              value={toDate}
+              onChange={(newDate) => setToDate(newDate)}
+            />
             </LocalizationProvider>
 
             <Button
               fullWidth
               variant="contained"
-              sx={{ mt: 2 }}
+              sx={{
+                mt: 2,
+                backgroundColor: 'transparent',
+                border: '1px solid #6f7170',
+                color: '#919393',
+                boxShadow: 'none',
+                opacity: 1,
+                borderRadius: 0,
+                '&:hover': {
+                  backgroundColor: '#717372',
+                  color: '#fff',
+                },
+              }}
               onClick={() => alert(`Booking room "${selectedRoom.description}" from ${fromDate} to ${toDate}`)}
             >
               Confirm Booking
