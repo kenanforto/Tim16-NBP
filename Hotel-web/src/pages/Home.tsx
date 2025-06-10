@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import {
   Box,
   Typography,
@@ -7,41 +8,69 @@ import {
   Chip,
   Button,
   Container,
-  Stack,
   Grid,
 } from '@mui/material';
 import { Link } from 'react-router-dom';
-import logo from '../assets/logo.png';
+import logo from '../assets/logoWhite.png';
 import bgVideo from '../assets/bgVideo.mp4';
+import { useRooms } from '../context/RoomContext';
+import bgImg from '../assets/hotel-bg.jpeg'
+import { useImages } from '../context/ImageContext';
 
-const rooms = [
-  {
-    name: 'Deluxe Ocean View Room',
-    price: '$320/Night',
-    location: 'Land Side View',
-    image: 'https://www.leonardo-hotels-cyprus.com/images/photos/photoGalleries/hotels/cypriaMaris/rooms/premiumRoomWithPanoramicSideSeaView/premiumRoomWithPanoramicSideSeaView_01.webp',
-  },
-  {
-    name: 'Mountain Suite',
-    price: '$280/Night',
-    location: 'Sea Side View',
-    image: 'https://www.leonardo-hotels-cyprus.com/images/photos/photoGalleries/hotels/cypriaMaris/rooms/premiumRoomWithPanoramicSideSeaView/premiumRoomWithPanoramicSideSeaView_01.webp',
-  },
-  {
-    name: 'Modern Loft Room',
-    price: '$200/Night',
-    location: 'Land Side View',
-    image: 'https://www.leonardo-hotels-cyprus.com/images/photos/photoGalleries/hotels/cypriaMaris/rooms/premiumRoomWithPanoramicSideSeaView/premiumRoomWithPanoramicSideSeaView_01.webp',
-  },
-  {
-    name: 'Tropical Bungalow',
-    price: '$350/Night',
-    location: 'Sea Side View',
-    image: 'https://www.leonardo-hotels-cyprus.com/images/photos/photoGalleries/hotels/cypriaMaris/rooms/premiumRoomWithPanoramicSideSeaView/premiumRoomWithPanoramicSideSeaView_01.webp',
-  },
-];
 
 function Home() {
+
+  const { rooms, refreshRooms } = useRooms();
+  const { getImagesForRoom } = useImages();
+  const [roomImages, setRoomImages] = useState<Record<number, string>>({});
+
+  useEffect(() => {
+    refreshRooms();
+  }, []);
+
+  useEffect(() => {
+    const fetchRoomImages = async () => {
+      const imagePromises = rooms.map(async (room) => {
+        try {
+          const images = await getImagesForRoom(room.id);
+          if (images.length > 0) {
+            // Use the first image as the main room image
+            const firstImage = images[0];
+            const blob = new Blob([firstImage.imageData], { type: firstImage.type });
+            const imageUrl = URL.createObjectURL(blob);
+            return { roomId: room.id, imageUrl };
+          }
+        } catch (error) {
+          console.error(`Failed to fetch images for room ${room.id}:`, error);
+        }
+        return null;
+      });
+
+      const results = await Promise.all(imagePromises);
+      const imageMap: Record<number, string> = {};
+
+      results.forEach((result) => {
+        if (result) {
+          imageMap[result.roomId] = result.imageUrl;
+        }
+      });
+
+      console.log('🗺️ Final imageMap:', imageMap);
+
+      setRoomImages(imageMap);
+    };
+
+    if (rooms.length > 0) {
+      fetchRoomImages();
+    }
+
+    return () => {
+      Object.values(roomImages).forEach((url) => {
+        URL.revokeObjectURL(url);
+      });
+    };
+  }, [rooms, getImagesForRoom]);
+
   return (
     <Box>
 
@@ -56,7 +85,6 @@ function Home() {
           backgroundColor: '#000'
         }}
       >
-        {/* Background Video */}
         <video
           autoPlay
           muted
@@ -76,7 +104,6 @@ function Home() {
           Your browser does not support the video tag.
         </video>
 
-        {/* Centered Logo */}
         <Box
           sx={{
             position: 'relative',
@@ -84,10 +111,9 @@ function Home() {
             textAlign: 'center',
           }}
         >
-          <img src={logo} alt="TranquilStays Logo" style={{ width: 180, maxWidth: '80%' }} />
+          <img src={logo} alt="TranquilStays Logo" style={{ width: 320, maxWidth: '80%' }} />
         </Box>
 
-        {/* Optional: Overlay */}
         <Box
           sx={{
             position: 'absolute',
@@ -95,14 +121,12 @@ function Home() {
             left: 0,
             width: '100%',
             height: '100%',
-            background: 'rgba(0,0,0,0.3)', // soft overlay
+            background: 'rgba(0,0,0,0.3)',
             zIndex: 1,
           }}
         />
       </Box>
 
-
-      {/* Hero Section */}
       <Container sx={{ py: 6 }}>
         <Box display="flex" justifyContent="space-between" alignItems="center" mb={5}>
           <Typography variant="h5" fontWeight={600}>
@@ -128,18 +152,18 @@ function Home() {
         </Box>
 
         <Grid container spacing={4}>
-          {rooms.map((room, index) => (
-            <Grid key={index}>
+          {rooms.map(room => (
+            <Grid key={room.id}>
               <Card
                 sx={{
                   height: '100%',
-                  borderRadius: 4,
                   overflow: 'hidden',
-                  boxShadow: 3,
+                  boxShadow: 1,
                   transition: 'transform 0.3s ease, box-shadow 0.3s ease',
                   '&:hover': {
                     transform: 'translateY(-6px)',
-                    boxShadow: 6,
+                    boxShadow: 3,
+                    cursor: 'pointer',
                   },
                 }}
               >
@@ -147,35 +171,36 @@ function Home() {
                   <CardMedia
                     component="img"
                     height="200"
-                    image={room.image}
-                    alt={room.name}
+                    image={roomImages[room.id] || bgImg}
+                    alt={room.name || `Room #${room.id}`}
                   />
                   <Chip
-                    label={room.price}
+                    label={`$ ${room.price || 'N/A'}`}
                     sx={{
+                      borderRadius: 0,
                       position: 'absolute',
                       top: 12,
                       right: 12,
-                      backgroundColor: '#fff',
-                      fontWeight: 600,
+                      color: '#d6d6d6',
+                      border: '1px solid #d6d6d6'
                     }}
                   />
                 </Box>
                 <CardContent>
-                  <Typography variant="body2" color="text.secondary">
-                    {room.location}
-                  </Typography>
                   <Typography variant="h6" fontWeight={600}>
-                    {room.name}
+                    {room.name ?? `Room #${room.id}`}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Floor: {room.floor}
                   </Typography>
                 </CardContent>
               </Card>
             </Grid>
           ))}
         </Grid>
+
       </Container>
 
-      {/* Promo Section */}
       <Box textAlign="center" bgcolor="#fafafa" py={10} px={2}>
         <Typography variant="subtitle2" fontWeight={500} mb={1}>
           Explore Rooms
@@ -203,22 +228,22 @@ function Home() {
             Explore Rooms →
           </Button>
         </Link>
-        <Typography variant="caption" color="text.secondary" mt={2}>
+        <Typography variant="caption" color="text.secondary" mt={2} ml={2}>
           Cancel anytime. No hidden fees.
         </Typography>
       </Box>
 
-      {/* Gallery + Community */}
+      {/* Gallery */}
       <Box bgcolor="#f4f4f4" px={2} py={8}>
         <Grid container spacing={2} mb={6} justifyContent="center">
           {[...Array(6)].map((_, i) => (
             <Grid key={i}>
-              <CardMedia
+              {/* <CardMedia
                 component="img"
                 image={rooms[i % rooms.length].image}
                 alt={`room-${i}`}
                 sx={{ borderRadius: 3, height: 160, width: 240, objectFit: 'cover' }}
-              />
+              /> */}
             </Grid>
           ))}
         </Grid>
