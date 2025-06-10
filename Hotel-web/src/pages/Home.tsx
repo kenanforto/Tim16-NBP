@@ -21,6 +21,7 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import type { Room } from '../types/room';
+import { getImagesByRoom } from '../api/services/imageService';
 
 
 // type Room = {
@@ -37,8 +38,15 @@ function Home() {
   const [fromDate, setFromDate] = useState<Date | null>(null);
   const [toDate, setToDate] = useState<Date | null>(null);
 
+  const { rooms, refreshRooms, setImageForRoom } = useRooms();
 
-  const { rooms, refreshRooms } = useRooms();
+  const loadRoomImages = async (roomId: number) => {
+    const response = await getImagesByRoom(roomId);
+    if (response.data && response.data.length > 0) {
+      const firstImage = response.data[0];
+      setImageForRoom(roomId, firstImage.imageData);
+    }
+  }
   // const { getImagesForRoom } = useImages();
   // const [roomImages, setRoomImages] = useState<Record<number, string>>({});
 
@@ -183,82 +191,83 @@ function Home() {
         </Box>
 
         <Grid container spacing={4}>
-          {rooms.map(room => (
-            <Grid key={room.id}>
-              <Card
-                sx={{
-                  position: 'relative',
-                  height: '100%',
-                  overflow: 'hidden',
-                  boxShadow: 1,
-                  transition: 'transform 0.3s ease, box-shadow 0.3s ease',
-                  '&:hover': {
-                    transform: 'translateY(-6px)',
-                    boxShadow: 3,
-                    cursor: 'pointer',
-                  },
-                }}
-              >
-                <Box position="relative">
-                  <CardMedia
-                    component="img"
-                    height="200"
-                    // image={roomImages[room.id] || bgImg}
-                    image={bgImg}
-                    alt={room.description || `Room #${room.id}`}
-                  />
-                  <Chip
-                    label={`$ ${room.price || 'N/A'}`}
-                    sx={{
-                      borderRadius: 0,
-                      position: 'absolute',
-                      top: 12,
-                      right: 12,
-                      color: '#d6d6d6',
-                      border: '1px solid #d6d6d6'
-                    }}
-                  />
-                </Box>
-                <CardContent>
-                  <Typography variant="h6" fontWeight={600}>
-                    {room.type ? room.type.description : `Room____ #${room.id}`}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    Floor: {room.floor}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    {room.description}
-                  </Typography>
-                </CardContent>
-                <CardActions disableSpacing>
-                  <Button
-                    variant="contained"
-                    size="small"
-                    style={{ marginLeft: 'auto' }}
-                    onClick={() => handleOpenDrawer(room)}
-                    sx={{
-                      backgroundColor: 'transparent',
-                      border: '1px solid #6f7170',
-                      color: '#919393',
-                      boxShadow: 'none',
-                      opacity: 0,
-                      borderRadius: 0,
-                      '&:hover': {
-                        backgroundColor: '#717372',
-                        color: '#fff',
-                      },
-                      '.MuiCard-root:hover &': {
-                        opacity: 1,
-                        pointerEvents: 'auto',
-                      },
-                    }}
-                  >
-                    Book Now
-                  </Button>
-                </CardActions>
-              </Card>
-            </Grid>
-          ))}
+          {rooms.map(room => {
+            return (
+              <Grid key={room.id}>
+                <Card
+                  sx={{
+                    position: 'relative',
+                    height: '100%',
+                    overflow: 'hidden',
+                    boxShadow: 1,
+                    transition: 'transform 0.3s ease, box-shadow 0.3s ease',
+                    '&:hover': {
+                      transform: 'translateY(-6px)',
+                      boxShadow: 3,
+                      cursor: 'pointer',
+                    },
+                  }}
+                >
+                  <Box position="relative">
+                    <CardMedia
+                      component="img"
+                      height="200"
+                      // image={roomImages[room.id] || bgImg}
+                      image={!room.image ? bgImg: undefined}
+                      src={room.image ? `data:image/jpeg;base64,${room.image}`: undefined}
+                      alt={room.description || `Room #${room.id}`} />
+                    <Chip
+                      label={`$ ${room.price || 'N/A'}`}
+                      sx={{
+                        borderRadius: 0,
+                        position: 'absolute',
+                        top: 12,
+                        right: 12,
+                        color: '#d6d6d6',
+                        border: '1px solid #d6d6d6'
+                      }} />
+                  </Box>
+                  <CardContent>
+                    <Typography variant="h6" fontWeight={600}>
+                      {room.type ? room.type.description : `Room____ #${room.id}`}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      Floor: {room.floor}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      {room.description}
+                    </Typography>
+                  </CardContent>
+                  <CardActions disableSpacing>
+                    <Button
+                      variant="contained"
+                      size="small"
+                      style={{ marginLeft: 'auto' }}
+                      onClick={() => handleOpenDrawer(room)}
+                      sx={{
+                        backgroundColor: 'transparent',
+                        border: '1px solid #6f7170',
+                        color: '#919393',
+                        boxShadow: 'none',
+                        opacity: 0,
+                        borderRadius: 0,
+                        '&:hover': {
+                          backgroundColor: '#717372',
+                          color: '#fff',
+                        },
+                        '.MuiCard-root:hover &': {
+                          opacity: 1,
+                          pointerEvents: 'auto',
+                        },
+                      }}
+                    >
+                      Book Now
+                    </Button>
+                  </CardActions>
+                </Card>
+              </Grid>
+            );
+          })}
         </Grid>
 
       </Container>
