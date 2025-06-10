@@ -10,7 +10,8 @@ import {
   Button,
   Drawer,
   TextField,
-  Container
+  Container,
+  CardActions
 } from '@mui/material';
 import { Link } from 'react-router-dom';
 import logo from '../assets/logoWhite.png';
@@ -227,30 +228,32 @@ function Home() {
                     Floor: {room.floor}
                   </Typography>
                 </CardContent>
-                <Box
-                  sx={{
-                    position: 'absolute',
-                    bottom: 16,
-                    left: '50%',
-                    transform: 'translateX(-50%)',
-                    opacity: 0,
-                    transition: 'opacity 0.3s ease',
-                    pointerEvents: 'none',
-                    '.MuiCard-root:hover &': {
-                      opacity: 1,
-                      pointerEvents: 'auto',
-                    },
-                  }}
-                >
+                <CardActions disableSpacing>
                   <Button
                     variant="contained"
                     size="small"
+                    style={{ marginLeft: 'auto' }}
                     onClick={() => handleOpenDrawer(room)}
-                    sx={{ mt: 1 }}
+                    sx={{
+                      backgroundColor: 'transparent',
+                      border: '1px solid #6f7170',
+                      color: '#919393',
+                      boxShadow: 'none',
+                      opacity: 0,
+                      borderRadius: 0,
+                      '&:hover': {
+                        backgroundColor: '#717372',
+                        color: '#fff',
+                      },
+                      '.MuiCard-root:hover &': {
+                        opacity: 1,
+                        pointerEvents: 'auto',
+                      },
+                    }}
                   >
                     Book Now
                   </Button>
-                </Box>
+                </CardActions>
               </Card>
             </Grid>
           ))}

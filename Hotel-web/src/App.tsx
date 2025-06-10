@@ -11,8 +11,9 @@ import { UserProvider } from './context/UserContext';
 import { RoomProvider } from './context/RoomContext';
 import { ImageProvider } from './context/ImageContext';
 import Data from './pages/Data';
-function App() {
+import { ProtectedRoute } from './components/ProtectedRoute';
 
+function App() {
   return (
     <SnackbarProvider maxSnack={3} autoHideDuration={3000}>
       <Router>
@@ -20,14 +21,28 @@ function App() {
           <RoomProvider>
             <ImageProvider>
               <Routes>
-                <Route element={<Layout />}>
-                  <Route path="/" element={<Home />} />
-                  <Route path="/rooms" element={<Rooms />} />
-                  <Route path="/data" element={<Data />} />
-                  <Route path="*" element={<NotFound />} />
-                </Route>
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
+                
+                {/* Protected routes inside Layout */}
+                <Route element={<Layout />}>
+                  <Route path="/" element={
+                    <ProtectedRoute>
+                      <Home />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/rooms" element={
+                    <ProtectedRoute>
+                      <Rooms />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/data" element={
+                    <ProtectedRoute allowedRoles={['ADMIN']}>
+                      <Data />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="*" element={<NotFound />} />
+                </Route>
               </Routes>
             </ImageProvider>
           </RoomProvider>

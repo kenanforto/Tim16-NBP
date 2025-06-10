@@ -1,6 +1,5 @@
-import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
+import { createContext, useContext, useState, type ReactNode } from 'react';
 import { getAllRooms } from '../api/services/roomService';
-import { getRoomTypeById } from '../api/services/roomTypeService';
 import type { Room } from '../types/room';
 
 interface RoomContextType {
