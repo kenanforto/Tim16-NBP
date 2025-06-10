@@ -1,7 +1,8 @@
 export class Room {
     id!: number;
     name!: string;
-    type!: string;
+    roomTypeId!: number;
+    typeDescription?: string;
     status!: string;
     floor!: number;
     price!: number;

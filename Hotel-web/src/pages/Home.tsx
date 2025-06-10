@@ -21,55 +21,55 @@ import { useImages } from '../context/ImageContext';
 function Home() {
 
   const { rooms, refreshRooms } = useRooms();
-  const { getImagesForRoom } = useImages();
-  const [roomImages, setRoomImages] = useState<Record<number, string>>({});
+  // const { getImagesForRoom } = useImages();
+  // const [roomImages, setRoomImages] = useState<Record<number, string>>({});
 
   useEffect(() => {
     refreshRooms();
   }, []);
 
-  useEffect(() => {
-    const fetchRoomImages = async () => {
-      const imagePromises = rooms.map(async (room) => {
-        try {
-          const images = await getImagesForRoom(room.id);
-          if (images.length > 0) {
-            // Use the first image as the main room image
-            const firstImage = images[0];
-            const blob = new Blob([firstImage.imageData], { type: firstImage.type });
-            const imageUrl = URL.createObjectURL(blob);
-            return { roomId: room.id, imageUrl };
-          }
-        } catch (error) {
-          console.error(`Failed to fetch images for room ${room.id}:`, error);
-        }
-        return null;
-      });
+  // useEffect(() => {
+  //   const fetchRoomImages = async () => {
+  //     const imagePromises = rooms.map(async (room) => {
+  //       try {
+  //         const images = await getImagesForRoom(room.id);
+  //         if (images.length > 0) {
+  //           // Use the first image as the main room image
+  //           const firstImage = images[0];
+  //           const blob = new Blob([firstImage.imageData], { type: firstImage.type });
+  //           const imageUrl = URL.createObjectURL(blob);
+  //           return { roomId: room.id, imageUrl };
+  //         }
+  //       } catch (error) {
+  //         console.error(`Failed to fetch images for room ${room.id}:`, error);
+  //       }
+  //       return null;
+  //     });
 
-      const results = await Promise.all(imagePromises);
-      const imageMap: Record<number, string> = {};
+  //     const results = await Promise.all(imagePromises);
+  //     const imageMap: Record<number, string> = {};
 
-      results.forEach((result) => {
-        if (result) {
-          imageMap[result.roomId] = result.imageUrl;
-        }
-      });
+  //     results.forEach((result) => {
+  //       if (result) {
+  //         imageMap[result.roomId] = result.imageUrl;
+  //       }
+  //     });
 
-      console.log('🗺️ Final imageMap:', imageMap);
+  //     console.log('🗺️ Final imageMap:', imageMap);
 
-      setRoomImages(imageMap);
-    };
+  //     setRoomImages(imageMap);
+  //   };
 
-    if (rooms.length > 0) {
-      fetchRoomImages();
-    }
+  //   if (rooms.length > 0) {
+  //     fetchRoomImages();
+  //   }
 
-    return () => {
-      Object.values(roomImages).forEach((url) => {
-        URL.revokeObjectURL(url);
-      });
-    };
-  }, [rooms, getImagesForRoom]);
+  //   return () => {
+  //     Object.values(roomImages).forEach((url) => {
+  //       URL.revokeObjectURL(url);
+  //     });
+  //   };
+  // }, [rooms, getImagesForRoom]);
 
   return (
     <Box>
@@ -171,7 +171,8 @@ function Home() {
                   <CardMedia
                     component="img"
                     height="200"
-                    image={roomImages[room.id] || bgImg}
+                    // image={roomImages[room.id] || bgImg}
+                    image={bgImg}
                     alt={room.name || `Room #${room.id}`}
                   />
                   <Chip

@@ -1,5 +1,5 @@
 import { Outlet, Link, useNavigate } from 'react-router-dom';
-import { AppBar, Toolbar, Button, Container, Box } from '@mui/material';
+import { AppBar, Toolbar, Button, Box } from '@mui/material';
 import logo from '../assets/logo.png';
 
 function Layout() {
@@ -19,6 +19,9 @@ function Layout() {
               <img src={logo} alt="Logo" style={{ height: 36, marginRight: 8 }} />
             </Link>
           </Box>
+          <Button component={Link} to="/data" sx={{ color: '#000', textTransform: 'none' }}>
+            Data
+          </Button>
           <Button component={Link} to="/" sx={{ color: '#000', textTransform: 'none' }}>
             Home
           </Button>

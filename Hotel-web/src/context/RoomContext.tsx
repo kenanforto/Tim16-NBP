@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
 import { getAllRooms } from '../api/services/roomService';
+import { getRoomTypeById } from '../api/services/roomTypeService';
 import type { Room } from '../types/room';
 
 interface RoomContextType {
@@ -19,6 +20,18 @@ export const RoomProvider = ({ children }: { children: ReactNode }) => {
             console.log("Room API response", response);
 
             if (Array.isArray(response.data?.elements)) {
+                // const enrichedRooms = await Promise.all(
+    //     response.data.elements.map(async (room) => {
+    //         try {
+    //             const typeRes = await getRoomTypeById(room.roomTypeId);
+    //             const typeDescription = typeRes.data?.description || '';
+    //             return { ...room, typeDescription };
+    //         } catch (err) {
+    //             console.warn(`Failed to get room type for ID ${room.roomTypeId}`, err);
+    //             return { ...room, typeDescription: '' };
+    //         }
+    //     })
+    // );
                 setRooms(response.data.elements);
             } else {
                 console.warn("Expected elements array missing from response", response.data);
@@ -29,11 +42,6 @@ export const RoomProvider = ({ children }: { children: ReactNode }) => {
             setRooms([]);
         }
     };
-
-
-    useEffect(() => {
-        refreshRooms();
-    }, []);
 
     return (
         <RoomContext.Provider value={{ rooms, setRooms, refreshRooms }}>

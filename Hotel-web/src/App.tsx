@@ -10,6 +10,7 @@ import { SnackbarProvider } from 'notistack';
 import { UserProvider } from './context/UserContext';
 import { RoomProvider } from './context/RoomContext';
 import { ImageProvider } from './context/ImageContext';
+import Data from './pages/Data';
 function App() {
 
   return (
@@ -22,6 +23,7 @@ function App() {
                 <Route element={<Layout />}>
                   <Route path="/" element={<Home />} />
                   <Route path="/rooms" element={<Rooms />} />
+                  <Route path="/data" element={<Data />} />
                   <Route path="*" element={<NotFound />} />
                 </Route>
                 <Route path="/login" element={<Login />} />
