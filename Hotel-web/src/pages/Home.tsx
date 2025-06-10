@@ -140,7 +140,7 @@ function Home() {
         <Grid container spacing={4}>
           {rooms.map(room => {
             return (
-              <Grid key={room.id}>
+              <Grid key={room.id} size={{ xs: 12, sm: 6, md: 4 }}>
                 <Card
                   sx={{
                     position: 'relative',
