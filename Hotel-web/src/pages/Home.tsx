@@ -21,7 +21,7 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import type { Room } from '../types/room';
-import { getImagesByRoom } from '../api/services/imageService';
+import type { PickerValue } from '@mui/x-date-pickers/internals';
 
 
 // type Room = {
@@ -35,67 +35,14 @@ function Home() {
 
   const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [fromDate, setFromDate] = useState<Date | null>(null);
-  const [toDate, setToDate] = useState<Date | null>(null);
+  const [fromDate, setFromDate] = useState<PickerValue | undefined>(undefined);
+  const [toDate, setToDate] = useState<PickerValue | undefined>(undefined);
 
-  const { rooms, refreshRooms, setImageForRoom } = useRooms();
-
-  const loadRoomImages = async (roomId: number) => {
-    const response = await getImagesByRoom(roomId);
-    if (response.data && response.data.length > 0) {
-      const firstImage = response.data[0];
-      setImageForRoom(roomId, firstImage.imageData);
-    }
-  }
-  // const { getImagesForRoom } = useImages();
-  // const [roomImages, setRoomImages] = useState<Record<number, string>>({});
+  const { rooms, refreshRooms } = useRooms();
 
   useEffect(() => {
     refreshRooms();
   }, []);
-
-  // useEffect(() => {
-  //   const fetchRoomImages = async () => {
-  //     const imagePromises = rooms.map(async (room) => {
-  //       try {
-  //         const images = await getImagesForRoom(room.id);
-  //         if (images.length > 0) {
-  //           // Use the first image as the main room image
-  //           const firstImage = images[0];
-  //           const blob = new Blob([firstImage.imageData], { type: firstImage.type });
-  //           const imageUrl = URL.createObjectURL(blob);
-  //           return { roomId: room.id, imageUrl };
-  //         }
-  //       } catch (error) {
-  //         console.error(`Failed to fetch images for room ${room.id}:`, error);
-  //       }
-  //       return null;
-  //     });
-
-  //     const results = await Promise.all(imagePromises);
-  //     const imageMap: Record<number, string> = {};
-
-  //     results.forEach((result) => {
-  //       if (result) {
-  //         imageMap[result.roomId] = result.imageUrl;
-  //       }
-  //     });
-
-  //     console.log('🗺️ Final imageMap:', imageMap);
-
-  //     setRoomImages(imageMap);
-  //   };
-
-  //   if (rooms.length > 0) {
-  //     fetchRoomImages();
-  //   }
-
-  //   return () => {
-  //     Object.values(roomImages).forEach((url) => {
-  //       URL.revokeObjectURL(url);
-  //     });
-  //   };
-  // }, [rooms, getImagesForRoom]);
 
   const handleOpenDrawer = (room: Room) => {
     setSelectedRoom(room);
@@ -368,7 +315,8 @@ function Home() {
               <CardMedia
                 component="img"
                 height="160"
-                image={bgImg}
+                image={!selectedRoom.image ? bgImg: undefined}
+                src={selectedRoom.image ? `data:image/jpeg;base64,${selectedRoom.image}`: undefined}
                 alt="Room Preview"
                 sx={{ borderRadius: 2 }}
               />
@@ -404,7 +352,7 @@ function Home() {
               fullWidth
               variant="contained"
               sx={{ mt: 2 }}
-              onClick={() => alert(`Booking room "${selectedRoom.name}" from ${fromDate} to ${toDate}`)}
+              onClick={() => alert(`Booking room "${selectedRoom.description}" from ${fromDate} to ${toDate}`)}
             >
               Confirm Booking
             </Button>

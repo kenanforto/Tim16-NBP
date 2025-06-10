@@ -44,6 +44,7 @@ export const ImageProvider = ({ children }: { children: ReactNode }) => {
             }));
             
             return images;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (error: any) {
             console.error(`Failed to fetch images for room ${roomId}:`, error);
             
