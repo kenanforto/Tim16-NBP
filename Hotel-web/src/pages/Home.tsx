@@ -1,14 +1,16 @@
 import { useEffect, useState } from 'react';
 import {
   Box,
-  Typography,
+  Grid,
   Card,
   CardMedia,
   CardContent,
+  Typography,
   Chip,
   Button,
-  Container,
-  Grid,
+  Drawer,
+  TextField,
+  Container
 } from '@mui/material';
 import { Link } from 'react-router-dom';
 import logo from '../assets/logoWhite.png';
@@ -16,9 +18,25 @@ import bgVideo from '../assets/bgVideo.mp4';
 import { useRooms } from '../context/RoomContext';
 import bgImg from '../assets/hotel-bg.jpeg'
 import { useImages } from '../context/ImageContext';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 
+
+type Room = {
+  id: number;
+  name: string;
+  floor: number;
+  price: number;
+};
 
 function Home() {
+
+  const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [fromDate, setFromDate] = useState<Date | null>(null);
+  const [toDate, setToDate] = useState<Date | null>(null);
+
 
   const { rooms, refreshRooms } = useRooms();
   // const { getImagesForRoom } = useImages();
@@ -70,6 +88,19 @@ function Home() {
   //     });
   //   };
   // }, [rooms, getImagesForRoom]);
+
+  const handleOpenDrawer = (room: Room) => {
+    setSelectedRoom(room);
+    setDrawerOpen(true);
+  };
+
+  const handleCloseDrawer = () => {
+    setDrawerOpen(false);
+    setSelectedRoom(null);
+    setFromDate(null);
+    setToDate(null);
+  };
+
 
   return (
     <Box>
@@ -156,6 +187,7 @@ function Home() {
             <Grid key={room.id}>
               <Card
                 sx={{
+                  position: 'relative',
                   height: '100%',
                   overflow: 'hidden',
                   boxShadow: 1,
@@ -195,6 +227,30 @@ function Home() {
                     Floor: {room.floor}
                   </Typography>
                 </CardContent>
+                <Box
+                  sx={{
+                    position: 'absolute',
+                    bottom: 16,
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    opacity: 0,
+                    transition: 'opacity 0.3s ease',
+                    pointerEvents: 'none',
+                    '.MuiCard-root:hover &': {
+                      opacity: 1,
+                      pointerEvents: 'auto',
+                    },
+                  }}
+                >
+                  <Button
+                    variant="contained"
+                    size="small"
+                    onClick={() => handleOpenDrawer(room)}
+                    sx={{ mt: 1 }}
+                  >
+                    Book Now
+                  </Button>
+                </Box>
               </Card>
             </Grid>
           ))}
@@ -283,6 +339,61 @@ function Home() {
           </Link>
         </Box>
       </Box>
+
+      <Drawer
+        anchor="right"
+        open={drawerOpen}
+        onClose={handleCloseDrawer}
+        PaperProps={{
+          sx: { width: 350, p: 2 },
+        }}
+      >
+        {selectedRoom && (
+          <>
+            <Box mb={2}>
+              <CardMedia
+                component="img"
+                height="160"
+                image={bgImg}
+                alt="Room Preview"
+                sx={{ borderRadius: 2 }}
+              />
+            </Box>
+            <Typography variant="h6" fontWeight={600}>
+              {selectedRoom.name}
+            </Typography>
+            <Typography variant="body2" color="text.secondary" mb={1}>
+              Floor: {selectedRoom.floor}
+            </Typography>
+            <Typography variant="body1" mb={2}>
+              ${selectedRoom.price}
+            </Typography>
+
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <DatePicker
+                label="From Date"
+                value={fromDate}
+                onChange={(newDate) => setFromDate(newDate)}
+              />
+              <DatePicker
+                label="To Date"
+                value={toDate}
+                onChange={(newDate) => setToDate(newDate)}
+
+              />
+            </LocalizationProvider>
+
+            <Button
+              fullWidth
+              variant="contained"
+              sx={{ mt: 2 }}
+              onClick={() => alert(`Booking room "${selectedRoom.name}" from ${fromDate} to ${toDate}`)}
+            >
+              Confirm Booking
+            </Button>
+          </>
+        )}
+      </Drawer>
     </Box>
   );
 }
