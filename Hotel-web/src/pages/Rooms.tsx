@@ -3,7 +3,7 @@ import { Container, Typography, Card, CardContent, CardActions, Button } from '@
 import Grid from '@mui/material/Grid';
 import { useSnackbar } from 'notistack';
 import * as roomService from '../api/services/roomService';
-import type { Room } from '../api/types';
+import type { Room } from '../types/room';
 
 const Rooms: React.FC = () => {
   const [rooms, setRooms] = useState<Room[]>([]);

@@ -9,7 +9,6 @@ import {
   Chip,
   Button,
   Drawer,
-  TextField,
   Container,
   CardActions
 } from '@mui/material';
@@ -18,18 +17,18 @@ import logo from '../assets/logoWhite.png';
 import bgVideo from '../assets/bgVideo.mp4';
 import { useRooms } from '../context/RoomContext';
 import bgImg from '../assets/hotel-bg.jpeg'
-import { useImages } from '../context/ImageContext';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import type { Room } from '../types/room';
 
 
-type Room = {
-  id: number;
-  name: string;
-  floor: number;
-  price: number;
-};
+// type Room = {
+//   id: number;
+//   name: string;
+//   floor: number;
+//   price: number;
+// };
 
 function Home() {
 
@@ -206,7 +205,7 @@ function Home() {
                     height="200"
                     // image={roomImages[room.id] || bgImg}
                     image={bgImg}
-                    alt={room.name || `Room #${room.id}`}
+                    alt={room.description || `Room #${room.id}`}
                   />
                   <Chip
                     label={`$ ${room.price || 'N/A'}`}
@@ -222,10 +221,13 @@ function Home() {
                 </Box>
                 <CardContent>
                   <Typography variant="h6" fontWeight={600}>
-                    {room.name ?? `Room #${room.id}`}
+                    {room.type ? room.type.description : `Room____ #${room.id}`}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
                     Floor: {room.floor}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    {room.description}
                   </Typography>
                 </CardContent>
                 <CardActions disableSpacing>
@@ -362,8 +364,11 @@ function Home() {
                 sx={{ borderRadius: 2 }}
               />
             </Box>
-            <Typography variant="h6" fontWeight={600}>
-              {selectedRoom.name}
+            <Typography variant="h5" fontWeight={600}>
+              {selectedRoom.type.description}
+            </Typography>
+            <Typography variant="h6" fontWeight={400} mb={1}>
+              {selectedRoom.description}
             </Typography>
             <Typography variant="body2" color="text.secondary" mb={1}>
               Floor: {selectedRoom.floor}
