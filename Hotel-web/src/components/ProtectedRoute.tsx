@@ -30,12 +30,7 @@ export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) 
     }
   }, [user, setUser]);
 
-  if (!user) {
-    // Redirect to login if not authenticated
-    return <Navigate to="/login" state={{ from: location }} replace />;
-  }
-
-  if (allowedRoles && !allowedRoles.includes(user.role)) {
+  if (user && allowedRoles && !allowedRoles.includes(user.role.name)) {
     // Redirect to home if user doesn't have required role
     return <Navigate to="/" replace />;
   }

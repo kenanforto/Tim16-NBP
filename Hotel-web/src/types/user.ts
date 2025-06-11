@@ -1,4 +1,9 @@
 export class User {
   email!: string;
-  role!: string;
+  role!: Role;
+}
+
+export class Role {
+  id!: number;
+  name!:  string;
 }

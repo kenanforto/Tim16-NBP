@@ -14,6 +14,7 @@ import {
     Stack,
     IconButton,
     Paper,
+    TableContainer,
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit'
 
@@ -687,11 +688,12 @@ function Data() {
                             </Box>
                         </Paper>
                     )}
-
-                    <Table size="small" component={Paper}>
-                        <TableHead>{renderTableHeaders()}</TableHead>
-                        <TableBody>{renderTableRows()}</TableBody>
-                    </Table>
+                    <TableContainer component={Paper}>    
+                        <Table size="small">
+                            <TableHead>{renderTableHeaders()}</TableHead>
+                            <TableBody>{renderTableRows()}</TableBody>
+                        </Table>
+                    </TableContainer>
                 </TabPanel>
             ))}
         </Box>

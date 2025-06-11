@@ -44,7 +44,8 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
           }
         }
         console.log('User authentication check completed', response.data);
-      } catch {
+      } catch (e){
+        console.error(e);
         setUser(null);
         if (!publicPaths.includes(location.pathname)) {
           navigate('/login');

@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { decodeJwtToken } from './util';
-import type { User } from '../types/user';
+import type { Role, User } from '../types/user';
 import constants from '../constants';
 
 const instance = axios.create({
@@ -31,7 +31,7 @@ instance.interceptors.response.use(
     if (authHeader) {
       const token = authHeader.split(' ')[1]; // Extract token from 'Bearer <token>'
       localStorage.setItem('token', token);
-      const claims = decodeJwtToken<{ role: string; sub: string }>(token);
+      const claims = decodeJwtToken<{ role: Role; sub: string }>(token);
       const user = { role: claims?.role, email: claims?.sub } as User;
       console.log('User', user);
       // Broadcast user info to context
