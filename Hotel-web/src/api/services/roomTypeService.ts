@@ -5,6 +5,10 @@ export const getRoomTypeById = (id: number) => {
   return axios.get(`/api/room-type/${id}`);
 };
 
+export const getAllRoomTypes = () => {
+  return axios.get(`/api/room-type`);
+};
+
 export const createRoomType = (data: RoomTypeRequest) => {
   return axios.post('/api/room-type', data);
 };

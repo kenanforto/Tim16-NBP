@@ -41,8 +41,9 @@ public class RoomTypeController {
     }
 
     @PostMapping()
-    public ResponseEntity<RoomType> createRoomType(RoomTypeRequest roomTypeRequest) {
+    public ResponseEntity<RoomType> createRoomType(@RequestBody RoomTypeRequest roomTypeRequest) {
         try {
+            System.out.println("neki "+ roomTypeRequest);
             var maxIdStatement = jdbcConnection.prepareStatement("SELECT COALESCE(MAX(ID), 0) + 1 AS NEXT_ID FROM NBP09.NBP_ROOM_TYPE");
             var resultSet = maxIdStatement.executeQuery();
             int nextId = 1; // Default to 1 if the table is empty

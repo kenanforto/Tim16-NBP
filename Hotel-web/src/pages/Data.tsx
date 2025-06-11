@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     Box,
     Tabs,
@@ -18,11 +18,9 @@ import {
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit'
 import { exportReport } from '../api/services/reportService';
+import { getAllRoomTypes, updateRoomType, createRoomType } from '../api/services/roomTypeService';
+import type { RoomTypeRequest } from '../api/types';
 
-interface RoomType {
-    id: number;
-    description: string;
-}
 
 interface Room {
     id: number;
@@ -86,12 +84,6 @@ function TabPanel(props: { children?: React.ReactNode; index: number; value: num
         </div>
     );
 }
-
-const dummyRoomTypes: RoomType[] = [
-    { id: 1, description: 'Single' },
-    { id: 2, description: 'Double' },
-    { id: 3, description: 'Suite' },
-];
 
 const dummyRooms: Room[] = [
     {
@@ -188,8 +180,15 @@ const dummyBookings: Booking[] = [
 
 function Data() {
     const [tabIndex, setTabIndex] = useState(0);
+        useEffect(() => {
+            if (tabIndex === 0) {
+                getAllRoomTypes()
+                .then((res) => setTableData(res.data))
+                .catch((err) => console.error('Failed to fetch room types:', err));
+            }
+    }, [tabIndex]);
 
-    const [roomTypes, setRoomTypes] = useState(dummyRoomTypes);
+    const [tableData, setTableData] = useState<any[]>([]);
     const [rooms, setRooms] = useState(dummyRooms);
     const [payments, setPayments] = useState(dummyPayments);
     const [paymentTypes, setPaymentTypes] = useState(dummyPaymentTypes);
@@ -212,17 +211,32 @@ function Data() {
         setFormData((prev: any) => ({ ...prev, [field]: value }));
     };
 
-    const handleSave = () => {
+    const handleSave = async () => {
         switch (tabIndex) {
             case 0: // Room Types
-                if (editingId !== null) {
-                    setRoomTypes((prev) =>
-                        prev.map((rt) => (rt.id === editingId ? { ...rt, ...formData } : rt))
-                    );
-                } else {
-                    setRoomTypes((prev) => [...prev, { id: Date.now(), ...formData }]);
-                }
-                break;
+                try {
+                    if (tabIndex === 0) {
+                    if (editingId !== null) {
+                        await updateRoomType(editingId, formData);
+                    } else {
+                        const payload: RoomTypeRequest = {
+                            description: formData.description ?? '',
+                        };
+                        await createRoomType(payload);
+                    }
+                    
+                    const response = await getAllRoomTypes();
+                    setTableData(response.data);
+                    }
+
+                    setIsAdding(false);
+                    setFormData({});
+                    setEditingId(null);
+        } catch (error) {
+            console.error("Error saving data:", error);
+        }
+                
+            break;
 
             case 1: // Rooms
                 if (editingId !== null) {
@@ -281,7 +295,7 @@ function Data() {
         let item;
         switch (tabIndex) {
             case 0:
-                item = roomTypes.find((rt) => rt.id === id);
+                item = tableData.find((rt) => rt.id === id);
                 break;
             case 1:
                 item = rooms.find((r) => r.id === id);
@@ -309,7 +323,7 @@ function Data() {
     const renderTableRows = () => {
         switch (tabIndex) {
             case 0:
-                return roomTypes.map(({ id, description }) => (
+                return tableData.map(({ id, description }) => (
                     <TableRow key={id}>
                         <TableCell>{id}</TableCell>
                         <TableCell>{description}</TableCell>

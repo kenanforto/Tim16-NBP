@@ -1,9 +1,7 @@
 package com.hotel.Hotel.controllers;
 
 import com.hotel.Hotel.common.dto.MailBody;
-import com.hotel.Hotel.common.request.RoomBookedRequest;
 import com.hotel.Hotel.models.Role;
-import com.hotel.Hotel.models.RoomBooked;
 import com.hotel.Hotel.models.User;
 import com.hotel.Hotel.security.AuthenticationRequest;
 import com.hotel.Hotel.security.JwtService;
@@ -12,9 +10,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.Connection;
@@ -22,7 +17,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
 
 @RestController
 @RequestMapping("/api/users")
@@ -95,8 +89,8 @@ public class UserController {
         }
     }
 
-    @GetMapping(path="{email}")
-    public ResponseEntity<User> getByEmail(@PathVariable String email) {
+    @GetMapping(path="/email")
+    public ResponseEntity<User> getByEmail(@RequestParam String email) {
         try {
             var resultSet = jdbcConnection.createStatement().executeQuery("SELECT * FROM NBP.NBP_USER WHERE email='" + email + "'");
             System.out.println(resultSet);
