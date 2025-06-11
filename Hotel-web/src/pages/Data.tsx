@@ -17,6 +17,7 @@ import {
     TableContainer,
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit'
+import { exportReport } from '../api/services/reportService';
 
 interface RoomType {
     id: number;
@@ -658,13 +659,29 @@ function Data() {
                             {['Room Types', 'Rooms', 'Payments', 'Payment Types', 'Bookings', 'Booking Statuses'][index]}
                         </Typography>
                         {!isAdding && (
-                            <Button variant="contained" onClick={() => {
-                                setIsAdding(true);
-                                setEditingId(null);
-                                setFormData({});
+                            <Box sx={{
+                                display: 'flex',
+                                gap: '8px'
                             }}>
-                                Add New
-                            </Button>
+                                {tabIndex === 4 && <Button variant="contained" onClick={() => {
+                                    exportReport().then((response) => {
+                                        window.open(URL.createObjectURL(response.data));
+                                    })
+                                        ;
+                                }}>
+                                    Export Report
+                                </Button>}
+                                <Button variant="contained" onClick={() => {
+                                    setIsAdding(true);
+                                    setEditingId(null);
+                                    setFormData({});
+                                }}>
+                                    Add New
+                                </Button>
+
+                            </Box>
+
+
                         )}
                     </Stack>
 
@@ -688,7 +705,7 @@ function Data() {
                             </Box>
                         </Paper>
                     )}
-                    <TableContainer component={Paper}>    
+                    <TableContainer component={Paper}>
                         <Table size="small">
                             <TableHead>{renderTableHeaders()}</TableHead>
                             <TableBody>{renderTableRows()}</TableBody>
