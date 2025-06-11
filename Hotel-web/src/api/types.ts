@@ -94,3 +94,11 @@ export interface Room {
   price: number;
   description: string;
 }
+
+export interface Image {
+  id: number;
+  name: string;
+  type: string;
+  imageData: string;
+  roomId: number;
+}

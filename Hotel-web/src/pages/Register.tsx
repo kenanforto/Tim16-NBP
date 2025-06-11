@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Button, TextField, Typography, Container, Box } from '@mui/material';
 import { registerUser } from '../api/services/authService';
+import hotelBg from '../assets/hotel-bg.jpeg';
+import logo from '../assets/logo.png'
 
 function Register() {
   const [firstName, setFirstName] = useState('');
@@ -28,6 +30,18 @@ function Register() {
   };
 
   return (
+    <Box
+      sx={{
+        position: 'relative',
+        backgroundImage: `url(${hotelBg})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
+    >
     <Container maxWidth="sm">
       <Box
         display="flex"
@@ -36,8 +50,10 @@ function Register() {
         alignItems="center"
         minHeight="100vh"
       >
-        <Typography variant="h4" component="h1" gutterBottom>
-          Register
+       
+        <Container maxWidth="sm" sx={{ bgcolor: 'rgba(255, 255, 255, 0.65)', borderRadius: 2, p: 4, display: 'flex', flexDirection:'column', justifyContent:'center', alignItems:'center' }}>
+        <Typography variant="h5" component="h1" gutterBottom>
+          <img src={logo} alt="Logo" style={{ height: '50px' }} />
         </Typography>
         <form onSubmit={handleRegister} style={{ width: '100%' }}>
           <TextField
@@ -108,15 +124,17 @@ function Register() {
             required
           />
           {error && <Typography color="error">{error}</Typography>}
-          <Button type="submit" variant="contained" color="primary" fullWidth>
+          <Button type="submit" variant="contained" color="primary" fullWidth sx={{backgroundColor: '#000'}}>
             Register
           </Button>
         </form>
+        </Container>
         <Typography variant="body2" style={{ marginTop: '1rem' }}>
-          Already have an account? <Link to="/login">Login here</Link>
+          Already have an account? <Link to="/login" style={{ color: 'black', fontWeight: 'bold' }}>Login here</Link>
         </Typography>
       </Box>
     </Container>
+    </Box>
   );
 }
 

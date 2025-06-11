@@ -1,8 +1,10 @@
 package com.hotel.Hotel.controllers;
 
+import com.hotel.Hotel.common.RoomResponse;
 import com.hotel.Hotel.common.dto.PageResponse;
 import com.hotel.Hotel.common.request.RoomRequest;
 import com.hotel.Hotel.models.Room;
+import com.hotel.Hotel.service.RoomService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -11,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RestController
@@ -19,33 +22,27 @@ import java.util.List;
 public class RoomController {
 
     private final Connection jdbcConnection;
+    private final RoomService roomService;
 
     @GetMapping()
-    public ResponseEntity<PageResponse<Room>> getPage(@RequestParam(required = false, defaultValue = "0") Integer page, @RequestParam(required = false, defaultValue = "10") Integer size) {
+    public ResponseEntity<PageResponse<RoomResponse>> getPage(@RequestParam(required = false, defaultValue = "0") Integer page, @RequestParam(required = false, defaultValue = "10") Integer size) {
         log.info("getPage {} {}", page, size);
-        try {
-            var statement = jdbcConnection.prepareStatement("SELECT * FROM NBP09.NBP_ROOMS OFFSET ? ROWS FETCH NEXT ? ROWS ONLY");
-            statement.setInt(1, page * size);
-            statement.setInt(2, size);
-            var resultSet = statement.executeQuery();
-            var result = new PageResponse<Room>();
-            var elements = new ArrayList<Room>();
-            while (resultSet.next()) {
-                var room = new Room();
-                room.setId(resultSet.getInt("ID"));
-                room.setRoomTypeId(resultSet.getInt("ROOM_TYPE_ID"));
-                room.setRoomStatusId(resultSet.getInt("ROOM_STATUS_ID"));
-                room.setFloor(resultSet.getInt("FLOOR"));
-                room.setPrice(resultSet.getInt("PRICE"));
-                room.setDescription(resultSet.getString("DESCRIPTION"));
-                elements.add(room);
-            }
-            result.setElements(elements);
-            return ResponseEntity.ok(result);
-        } catch (Exception e) {
-            log.error("Error fetching rooms", e);
-            return ResponseEntity.status(500).body(null);
+        var roomPage = roomService.getRoomPage(page, size);
+        var roomStatuses = roomService.getAllRoomStatuses();
+        var roomTypes = roomService.getAllRoomTypes();
+        var response = new PageResponse<RoomResponse>();
+        response.setElements(new ArrayList<>());
+        for (var room : roomPage) {
+            var roomResponse = new RoomResponse();
+            roomResponse.setId(room.getId());
+            roomResponse.setType(roomTypes.stream().filter(rt -> rt.getId().equals(room.getRoomTypeId())).findFirst().orElse(null));
+            roomResponse.setStatus(roomStatuses.stream().filter(rt -> rt.getId().equals(room.getRoomStatusId())).findFirst().orElse(null));
+            roomResponse.setFloor(room.getFloor());
+            roomResponse.setPrice(room.getPrice());
+            roomResponse.setDescription(room.getDescription());
+            response.getElements().add(roomResponse);
         }
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping()

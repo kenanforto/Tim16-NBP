@@ -27,7 +27,7 @@ public class RoomBookedController {
             var resultSet = jdbcConnection.createStatement().executeQuery("SELECT * FROM NBP09.NBP_ROOM_BOOKED");
             var result = new ArrayList<RoomBooked>();
             while (resultSet.next()) {
-                log.info("getRoomBooked {}", resultSet.getString("description"));
+//                log.info("getRoomBooked {}", resultSet.getString("description"));
                 RoomBooked roomBooked = new RoomBooked();
                 roomBooked.setId(resultSet.getInt("ID"));
                 roomBooked.setBookingId(resultSet.getInt("BOOKING_ID"));
@@ -59,7 +59,7 @@ public class RoomBookedController {
 
             var roomBooked = new RoomBooked();
             roomBooked.setId(nextId);
-            roomBooked.setBookingId(roomBooked.getBookingId());
+            roomBooked.setBookingId(roomBookedRequest.getBookingId());
             roomBooked.setRoomId(roomBookedRequest.getRoomId());
 
             var generatedKeys = statement.getGeneratedKeys();

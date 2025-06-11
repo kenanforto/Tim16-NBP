@@ -1,48 +1,98 @@
 package com.hotel.Hotel.service;
 
 import com.hotel.Hotel.models.Report;
-import org.apache.pdfbox.pdmodel.*;
-import org.apache.pdfbox.pdmodel.common.PDRectangle;
-import org.apache.pdfbox.pdmodel.PDPageContentStream;
-import org.apache.pdfbox.pdmodel.font.PDType1Font;
-import org.apache.pdfbox.pdmodel.font.Standard14Fonts;
+import com.itextpdf.text.*;
+import com.itextpdf.text.pdf.PdfPTable;
+import com.itextpdf.text.pdf.PdfWriter;
+import com.itextpdf.text.pdf.draw.LineSeparator;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 public class PDFService {
 
-    public byte[] generatePdf(List<Report> reports) throws IOException {
-        try (PDDocument document = new PDDocument();
-             ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+    @Autowired
+    private Connection jdbcConnection;
 
-            PDPage page = new PDPage(PDRectangle.A4);
-            document.addPage(page);
+    public byte[] generateRoomsBookedByTypePDFReport() throws DocumentException, IOException {
+        List<Report> reports = new ArrayList<>();
+        try {
+            var resultSet = jdbcConnection.createStatement().executeQuery("SELECT * FROM NBP09.NBP_REPORT");
+            while (resultSet.next()) {
+                Report roomBooked = new Report();
+                roomBooked.setId(resultSet.getInt("ID"));
+                roomBooked.setRoomType(resultSet.getString("ROOM_TYPE"));
+                roomBooked.setRoomPrice(resultSet.getDouble("ROOM_PRICE"));
+                reports.add(roomBooked);
+            }
+        } catch (SQLException e) {
+            log.error("Error fetching data from report table", e);
+        }
+        Map<String, List<Report>> reportsByRoomType = reports.stream()
+                .collect(Collectors.groupingBy(Report::getRoomType));
 
-            try (PDPageContentStream stream = new PDPageContentStream(document, page)) {
-                stream.beginText();
-                stream.setFont(new PDType1Font(Standard14Fonts.FontName.HELVETICA_BOLD), 12);
-                stream.setLeading(14.5f);
-                stream.newLineAtOffset(50, 750);
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        Document document = new Document();
+        PdfWriter.getInstance(document, byteArrayOutputStream);
+        document.open();
 
-                for (Report report : reports) {
-                    stream.showText("Room: " + report.getRoomType());
-                    stream.newLine();
-                    stream.showText("Price: " + report.getRoomPrice());
-                    stream.newLine();
-                    stream.showText("Booking date: " + report.getBookingDate());
-                    stream.newLine();
-                    stream.newLine();
-                }
+        Paragraph title = new Paragraph("THE BELLMONT", new Font(Font.FontFamily.HELVETICA, 40, Font.BOLD));
+        title.setAlignment(Element.ALIGN_CENTER);
+        document.add(title);
+        document.add(Chunk.NEWLINE);
 
-                stream.endText();
+        for (Map.Entry<String, List<Report>> entry : reportsByRoomType.entrySet()) {
+            String roomType = entry.getKey();
+            List<Report> roomReports = entry.getValue();
+
+            document.add(new Paragraph(roomType.toUpperCase(),
+                    new Font(Font.FontFamily.HELVETICA, 18, Font.BOLD)));
+            document.add(Chunk.NEWLINE);
+
+            PdfPTable table = new PdfPTable(2);
+            table.setWidthPercentage(100);
+            table.addCell("Tip Sobe");
+            table.addCell("Cijena (KM)");
+
+            double totalRoomTypeRevenue = 0;
+            for (Report report : roomReports) {
+                table.addCell(String.valueOf(report.getRoomType()));
+                table.addCell(String.format("%.2f", report.getRoomPrice()));
+                totalRoomTypeRevenue += report.getRoomPrice();
             }
 
-            document.save(out);
-            return out.toByteArray();
+            document.add(table);
+            document.add(Chunk.NEWLINE);
+
+            Paragraph revenue = new Paragraph("Ukupna zarada za " + roomType + ": " + String.format("%.2f", totalRoomTypeRevenue) + " KM",
+                    new Font(Font.FontFamily.HELVETICA, 12, Font.BOLD));
+            revenue.setAlignment(Element.ALIGN_RIGHT);
+            document.add(revenue);
+            document.add(Chunk.NEWLINE);
+            document.add(new LineSeparator());
+            document.add(Chunk.NEWLINE);
         }
+
+        double totalRevenue = reports.stream().mapToDouble(Report::getRoomPrice).sum();
+        Paragraph totalRevenueParagraph = new Paragraph("UKUPNA ZARADA HOTELA: " + String.format("%.2f", totalRevenue) + " KM",
+                new Font(Font.FontFamily.HELVETICA, 14, Font.BOLD));
+        totalRevenueParagraph.setAlignment(Element.ALIGN_CENTER);
+        document.add(Chunk.NEWLINE);
+        document.add(totalRevenueParagraph);
+
+        document.close();
+
+        return byteArrayOutputStream.toByteArray();
     }
 }

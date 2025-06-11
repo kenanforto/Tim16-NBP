@@ -7,20 +7,46 @@ import NotFound from './pages/NotFound';
 import Layout from './components/Layout';
 import Rooms from './pages/Rooms';
 import { SnackbarProvider } from 'notistack';
+import { UserProvider } from './context/UserContext';
+import { RoomProvider } from './context/RoomContext';
+import { ImageProvider } from './context/ImageContext';
+import Data from './pages/Data';
+import { ProtectedRoute } from './components/ProtectedRoute';
 
 function App() {
   return (
     <SnackbarProvider maxSnack={3} autoHideDuration={3000}>
       <Router>
-        <Routes>
-          <Route element={<Layout />}>
-            <Route path="/" element={<Home />} />
-            <Route path="/rooms" element={<Rooms />} />
-            <Route path="*" element={<NotFound />} />
-          </Route>
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-        </Routes>
+        <UserProvider>
+          <RoomProvider>
+            <ImageProvider>
+              <Routes>
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
+                
+                {/* Protected routes inside Layout */}
+                <Route element={<Layout />}>
+                  <Route path="/" element={
+                    <ProtectedRoute>
+                      <Home />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/rooms" element={
+                    <ProtectedRoute>
+                      <Rooms />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/data" element={
+                    <ProtectedRoute allowedRoles={['Admin']}>
+                      <Data />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="*" element={<NotFound />} />
+                </Route>
+              </Routes>
+            </ImageProvider>
+          </RoomProvider>
+        </UserProvider>
       </Router>
     </SnackbarProvider>
   );

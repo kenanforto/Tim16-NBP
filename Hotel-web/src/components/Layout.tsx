@@ -1,5 +1,6 @@
 import { Outlet, Link, useNavigate } from 'react-router-dom';
-import { AppBar, Toolbar, Typography, Button, Container } from '@mui/material';
+import { AppBar, Toolbar, Button, Box } from '@mui/material';
+import logo from '../assets/logo.png';
 
 function Layout() {
   const navigate = useNavigate();
@@ -11,25 +12,28 @@ function Layout() {
 
   return (
     <>
-      <AppBar position="static">
+      <AppBar position="static" elevation={0} sx={{ backgroundColor: '#f6f1e9' }}>
         <Toolbar>
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            Hotel Booking System
-          </Typography>
-          <Button color="inherit" component={Link} to="/">
+          <Box sx={{ flexGrow: 1 }}>
+            <Link to="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
+              <img src={logo} alt="Logo" style={{ height: 36, marginRight: 8 }} />
+            </Link>
+          </Box>
+          <Button component={Link} to="/data" sx={{ color: '#000', textTransform: 'none' }}>
+            Data
+          </Button>
+          <Button component={Link} to="/" sx={{ color: '#000', textTransform: 'none' }}>
             Home
           </Button>
-          <Button color="inherit" component={Link} to="/rooms">
+          <Button component={Link} to="/rooms" sx={{ color: '#000', textTransform: 'none' }}>
             Rooms
           </Button>
-          <Button color="inherit" onClick={handleLogout}>
+          <Button onClick={handleLogout} sx={{ color: '#000', textTransform: 'none' }}>
             Logout
           </Button>
         </Toolbar>
       </AppBar>
-      <Container>
-        <Outlet />
-      </Container>
+      <Outlet />
     </>
   );
 }
