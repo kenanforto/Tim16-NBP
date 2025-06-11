@@ -665,7 +665,15 @@ function Data() {
                             }}>
                                 {tabIndex === 4 && <Button variant="contained" onClick={() => {
                                     exportReport().then((response) => {
-                                        window.open(URL.createObjectURL(response.data));
+                                        // window.open(URL.createObjectURL(response.data));
+                                        const url = window.URL.createObjectURL(new Blob([response.data]));
+                                        const link = document.createElement('a');
+                                        link.href = url;
+                                        link.setAttribute('download', "Report.pdf");
+                                        document.body.appendChild(link);
+                                        link.click();
+                                        window.URL.revokeObjectURL(url);
+                                        link.remove();
                                     })
                                         ;
                                 }}>
