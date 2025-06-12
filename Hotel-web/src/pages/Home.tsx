@@ -160,8 +160,8 @@ function Home() {
                       component="img"
                       height="200"
                       // image={roomImages[room.id] || bgImg}
-                      image={!room.image ? bgImg: undefined}
-                      src={room.image ? `data:image/jpeg;base64,${room.image}`: undefined}
+                      image={!room.image ? bgImg : undefined}
+                      src={room.image ? `data:image/jpeg;base64,${room.image}` : undefined}
                       alt={room.description || `Room #${room.id}`} />
                     <Chip
                       label={`$ ${room.price || 'N/A'}`}
@@ -246,22 +246,27 @@ function Home() {
             Explore Rooms →
           </Button>
         </Link>
+
         <Typography variant="caption" color="text.secondary" mt={2} ml={2}>
           Cancel anytime. No hidden fees.
         </Typography>
       </Box>
 
+
       {/* Gallery */}
       <Box bgcolor="#f4f4f4" px={2} py={8}>
-        <Grid container spacing={2} mb={6} justifyContent="center">
-          {[...Array(6)].map((_, i) => (
-            <Grid key={i}>
-              {/* <CardMedia
-                component="img"
-                image={rooms[i % rooms.length].image}
-                alt={`room-${i}`}
-                sx={{ borderRadius: 3, height: 160, width: 240, objectFit: 'cover' }}
-              /> */}
+        <Grid container spacing={3} justifyContent="center">
+          {rooms.slice(0, 8).map((room, index) => (
+            <Grid key={index}>
+              <Card sx={{ boxShadow: 2 }}>
+                <CardMedia
+                  component="img"
+                  height="200"
+                  image={room.image ? `data:image/jpeg;base64,${room.image}` : bgImg}
+                  alt={`Room ${room.id}`}
+                  sx={{ objectFit: 'cover' }}
+                />
+              </Card>
             </Grid>
           ))}
         </Grid>
@@ -272,6 +277,7 @@ function Home() {
           textAlign="center"
           bgcolor="white"
           p={4}
+          mt={6}
           borderRadius={3}
           boxShadow={3}
         >
@@ -315,8 +321,8 @@ function Home() {
               <CardMedia
                 component="img"
                 height="160"
-                image={!selectedRoom.image ? bgImg: undefined}
-                src={selectedRoom.image ? `data:image/jpeg;base64,${selectedRoom.image}`: undefined}
+                image={!selectedRoom.image ? bgImg : undefined}
+                src={selectedRoom.image ? `data:image/jpeg;base64,${selectedRoom.image}` : undefined}
                 alt="Room Preview"
                 sx={{ borderRadius: 2 }}
               />
@@ -335,17 +341,17 @@ function Home() {
             </Typography>
 
             <LocalizationProvider dateAdapter={AdapterDayjs}>
-            <DatePicker
-              label="From Date"
-              value={fromDate}
-              onChange={(newDate) => setFromDate(newDate)}
-              sx={{ mb: 2 }}
-            />
-            <DatePicker
-              label="To Date"
-              value={toDate}
-              onChange={(newDate) => setToDate(newDate)}
-            />
+              <DatePicker
+                label="From Date"
+                value={fromDate}
+                onChange={(newDate) => setFromDate(newDate)}
+                sx={{ mb: 2 }}
+              />
+              <DatePicker
+                label="To Date"
+                value={toDate}
+                onChange={(newDate) => setToDate(newDate)}
+              />
             </LocalizationProvider>
 
             <Button
