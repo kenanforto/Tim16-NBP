@@ -25,7 +25,7 @@ public class RoomController {
     private final RoomService roomService;
 
     @GetMapping()
-    public ResponseEntity<PageResponse<RoomResponse>> getPage(@RequestParam(required = false, defaultValue = "0") Integer page, @RequestParam(required = false, defaultValue = "10") Integer size) {
+    public ResponseEntity<PageResponse<RoomResponse>> getPage(@RequestParam(required = false, defaultValue = "0") Integer page, @RequestParam(required = false, defaultValue = "20") Integer size) {
         log.info("getPage {} {}", page, size);
         var roomPage = roomService.getRoomPage(page, size);
         var roomStatuses = roomService.getAllRoomStatuses();

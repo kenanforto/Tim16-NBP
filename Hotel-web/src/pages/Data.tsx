@@ -19,18 +19,11 @@ import {
 import EditIcon from '@mui/icons-material/Edit'
 import { exportReport } from '../api/services/reportService';
 import { getAllRoomTypes, updateRoomType, createRoomType } from '../api/services/roomTypeService';
-import type { RoomTypeRequest } from '../api/types';
+import type { RoomTypeRequest, RoomRequest } from '../api/types';
+import { getAllRooms, updateRoom, createRoom } from '../api/services/roomService';
+import {uploadRoomImage} from '../api/services/imageService';
+import axios from '../api/axios';
 
-
-interface Room {
-    id: number;
-    name: string;
-    type: string;
-    status: string;
-    floor: number;
-    price: number;
-    description: string;
-}
 
 interface Payment {
     id: number;
@@ -84,27 +77,6 @@ function TabPanel(props: { children?: React.ReactNode; index: number; value: num
         </div>
     );
 }
-
-const dummyRooms: Room[] = [
-    {
-        id: 1,
-        name: 'Room 101',
-        type: 'Single',
-        status: 'Available',
-        floor: 1,
-        price: 100,
-        description: 'Cozy single room',
-    },
-    {
-        id: 2,
-        name: 'Room 102',
-        type: 'Double',
-        status: 'Occupied',
-        floor: 1,
-        price: 150,
-        description: 'Spacious double room',
-    },
-];
 
 const dummyPayments: Payment[] = [
     {
@@ -186,10 +158,14 @@ function Data() {
                 .then((res) => setTableData(res.data))
                 .catch((err) => console.error('Failed to fetch room types:', err));
             }
+            if (tabIndex === 1) {
+                getAllRooms()
+                .then((res) => setTableData(res.data.elements))
+                .catch((err) => console.error('Failed to fetch rooms:', err));
+            }
     }, [tabIndex]);
 
     const [tableData, setTableData] = useState<any[]>([]);
-    const [rooms, setRooms] = useState(dummyRooms);
     const [payments, setPayments] = useState(dummyPayments);
     const [paymentTypes, setPaymentTypes] = useState(dummyPaymentTypes);
     const [bookings, setBookings] = useState(dummyBookings);
@@ -210,12 +186,12 @@ function Data() {
     const handleInputChange = (field: string, value: any) => {
         setFormData((prev: any) => ({ ...prev, [field]: value }));
     };
+    
 
     const handleSave = async () => {
         switch (tabIndex) {
             case 0: // Room Types
                 try {
-                    if (tabIndex === 0) {
                     if (editingId !== null) {
                         await updateRoomType(editingId, formData);
                     } else {
@@ -227,23 +203,50 @@ function Data() {
                     
                     const response = await getAllRoomTypes();
                     setTableData(response.data);
-                    }
 
                     setIsAdding(false);
                     setFormData({});
                     setEditingId(null);
-        } catch (error) {
-            console.error("Error saving data:", error);
-        }
+                } catch (error) {
+                    console.error("Error saving data:", error);
+                }
                 
             break;
 
             case 1: // Rooms
-                if (editingId !== null) {
-                    setRooms((prev) => prev.map((r) => (r.id === editingId ? { ...r, ...formData } : r)));
-                } else {
-                    setRooms((prev) => [...prev, { id: Date.now(), ...formData }]);
+                try{
+                    console.log("FORMMMM ", formData);
+                    const payload: RoomRequest = {
+                        roomStatusId: 1,
+                        roomTypeId: 6,
+                        floor: formData.floor ?? 0,
+                        price: formData.price ?? 0,
+                        description: formData.description ?? '',
+                    };
+                    console.log("payloaddd ", payload);
+                    if (editingId !== null) {
+                        await updateRoom(editingId, payload);
+                    } else {
+                        await createRoom(payload);
+                    }
+                    const response = await getAllRooms();
+                    console.log('tabindex gore ', tabIndex);
+                    console.log('responseee ', response.data);
+                    setTableData(response.data.elements);
+                    setIsAdding(false);
+                    setFormData({});
+                    setEditingId(null);
+                } catch (error) {
+                    console.error("Error saving data:", error);
                 }
+                
+            
+                // if (editingId !== null) {
+                //     setRooms((prev) => prev.map((r) => (r.id === editingId ? { ...r, ...formData } : r)));
+                // } else {
+                //     setRooms((prev) => [...prev, { id: Date.now(), ...formData }]);
+                // }
+
                 break;
 
             case 2: // Payments
@@ -295,10 +298,11 @@ function Data() {
         let item;
         switch (tabIndex) {
             case 0:
+                console.log('tabindex dole ', tabIndex);
                 item = tableData.find((rt) => rt.id === id);
                 break;
             case 1:
-                item = rooms.find((r) => r.id === id);
+                item = tableData.find((r) => r.id === id);
                 break;
             case 2:
                 item = payments.find((p) => p.id === id);
@@ -333,18 +337,19 @@ function Data() {
                     </TableRow>
                 ));
             case 1:
-                return rooms.map(({ id, name, type, status, floor, price, description }) => (
+                console.log("TABLEEEE ", tableData);
+                return tableData.map(({ id, name, floor, price, description, status, type }) => (
                     <TableRow key={id}>
-                        <TableCell>{id}</TableCell>
-                        <TableCell>{name}</TableCell>
-                        <TableCell>{type}</TableCell>
-                        <TableCell>{status}</TableCell>
-                        <TableCell>{floor}</TableCell>
-                        <TableCell>{price}</TableCell>
-                        <TableCell>{description}</TableCell>
-                        <TableCell align="right">
-                            <IconButton onClick={() => handleEdit(id)}><EditIcon /></IconButton>
-                        </TableCell>
+                    <TableCell>{name}</TableCell>
+                    <TableCell>{id}</TableCell>
+                    <TableCell>{type?.description}</TableCell>
+                    <TableCell>{status?.description}</TableCell>
+                    <TableCell>{floor}</TableCell>
+                    <TableCell>{price}</TableCell>
+                    <TableCell>{description}</TableCell>
+                    <TableCell align="right">
+                    <IconButton onClick={() => handleEdit(id)}><EditIcon /></IconButton>
+                    </TableCell>
                     </TableRow>
                 ));
             case 2:
